@@ -86,7 +86,7 @@
           v-bind:tableHeight="rightTableHeight"
           v-bind:isshowOption="true" v-bind:isshowSelection ="false"
           v-bind:propertyComponent="this.$refs.ShowProperty"
-          
+          @rowclick="selectedRow"
           @selectchange="selectChange"
           @refreshdatagrid="refreshMain"
         ></DataGrid>
@@ -624,6 +624,10 @@ export default {
       _self.loadGridData();
       
     },
+    selectedRow(row){
+      let _self=this;
+      _self.selectRow=row;
+    },
     // 删除文档事件
     onDeleleItem() {
       let _self = this;
@@ -691,7 +695,6 @@ export default {
         .then(function(response) {
           _self.loadGridData(null);
 
-          _self.showInnerFile(null);
           // _self.$message(_self.$t("message.deleteSuccess"));
           _self.$message({
               showClose: true,
