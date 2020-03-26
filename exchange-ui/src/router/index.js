@@ -8,6 +8,7 @@ import {reportRouter} from '@/router/report.js'
 import {userRouter} from '@/router/user.js'
 import {workflowRouter} from '@/router/workflow.js'
 import {testRouter} from '@/router/test.js'
+import {docexchange} from '@/router/docexchange.js'
 import store from '@/store'
 
 Vue.use(Router)
@@ -66,6 +67,7 @@ const router = new Router({
 				reportRouter,
 				adminRouter,
 				userRouter,
+				docexchange,
 				...testRouter
 			]
 		},
