@@ -39,6 +39,12 @@
                       <span slot="title">存储管理</span>
                     </el-menu-item>
                     </router-link>
+                    <router-link to="/managercenter/languagemanager">
+                    <el-menu-item index="114">
+                      <i class="el-icon-warning-outline"></i>
+                      <span slot="title">语言管理</span>
+                    </el-menu-item>
+                    </router-link>
                    </el-submenu>
                   </div>
                   <!--流程
@@ -63,44 +69,50 @@
                       <i class="el-icon-menu"></i>
                       <span slot="title">界面配置</span>
                     </template>
+                    <router-link to="/managercenter/langinfomanager">
+                    <el-menu-item index="209">
+                      <i class="el-icon-info"></i>
+                      <span slot="title">语言标签</span>
+                    </el-menu-item>
+                    </router-link>
                     <router-link to="/managercenter/componentmanager">
-                    <el-menu-item index="201">
+                    <el-menu-item index="210">
                       <i class="el-icon-ecm-news_light"></i>
                       <span slot="title">组件设置</span>
                     </el-menu-item>
                     </router-link>
                     <router-link to="/managercenter/actionmanager">
-                    <el-menu-item index="202">
+                    <el-menu-item index="211">
                       <i class="el-icon-ecm-link"></i>
                       <span slot="title">事件设置</span>
                     </el-menu-item>
                     </router-link>
                     <router-link to="/managercenter/menumanager">
-                    <el-menu-item index="203">
+                    <el-menu-item index="212">
                       <i class="el-icon-ecm-round_menu_fill"></i>
                       <span slot="title">菜单设置</span>
                     </el-menu-item>
                     </router-link>
                     <router-link to="/managercenter/formmanager">
-                    <el-menu-item index="204">
+                    <el-menu-item index="213">
                       <i class="el-icon-ecm-form_light"></i>
                       <span slot="title">表单设置</span>
                     </el-menu-item>
                     </router-link>
                     <router-link to="/managercenter/gridviewmanager">
-                    <el-menu-item index="205">
+                    <el-menu-item index="214">
                       <i class="el-icon-ecm-list"></i>
                       <span slot="title">列表设置</span>
                     </el-menu-item>
                     </router-link>
                     <router-link to="/managercenter/querymanager">
-                    <el-menu-item index="206">
+                    <el-menu-item index="215">
                       <i class="el-icon-ecm-search_list_light"></i>
                       <span slot="title">查询设置</span>
                     </el-menu-item>
                     </router-link>
                     <router-link to="/managercenter/cardsearchmanager">
-                    <el-menu-item index="208">
+                    <el-menu-item index="216">
                       <i class="el-icon-ecm-vipcard"></i>
                       <span slot="title">卡片查询</span>
                     </el-menu-item>

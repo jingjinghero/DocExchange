@@ -211,6 +211,24 @@ export const adminRouter = {
         requireAuth: true,
         permit: 9
       },
+      path: '/managercenter/languagemanager',
+      component: () => import('@/views/admin/LanguageManager.vue'),
+      name: '语言管理'
+    },
+    {
+      meta: {
+        requireAuth: true,
+        permit: 9
+      },
+      path: '/managercenter/langinfomanager',
+      component: () => import('@/views/admin/LangInfoManager.vue'),
+      name: '语言标签管理'
+    },
+    {
+      meta: {
+        requireAuth: true,
+        permit: 9
+      },
       path: '/managercenter/systemmanager',
       component: () => import('@/views/admin/SystemManager.vue'),
       name: '系统配置'
