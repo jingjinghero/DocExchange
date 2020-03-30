@@ -4,6 +4,7 @@
         v-bind:messageKey="currentItem.messageKey">
     </LangItemManager>
     <el-dialog title="添加" :visible.sync="dialogVisible"
+      :append-to-body="true"
       :close-on-click-modal="false"
       @open="refreshData"
       @close="dialogVisible=false">
@@ -28,7 +29,10 @@
       </div>
     </el-dialog>
     <el-container>
-    <el-dialog :visible.sync="showLangDialog" width="80%" :modal-append-to-body='false' @close="showLangDialog=false">
+    <el-dialog :visible.sync="showLangDialog" width="80%" 
+      :append-to-body="true"
+      :close-on-click-modal="false"
+      @close="showLangDialog=false">
       <el-row>
         <el-col :span="16">
           <el-input placeholder="输入搜索内容" @change="refreshData()" v-model="inputkey"></el-input>
@@ -81,26 +85,26 @@
           <el-table-column label="操作" width="270">
             <template slot-scope="scope">
               <el-button
-                :plain="true"
-                type="primary"
-                size="small"
-                icon="edit"
-                @click="editItem(scope.row)"
-              >标签</el-button>
-              <el-button
-                :plain="true"
-                type="primary"
-                size="small"
-                icon="edit"
-                @click="saveItem(scope.row)"
-              >保存</el-button>
-              <el-button
               :plain="true"
               type="primary"
               size="medium"
               icon="edit"
               @click="handleSelect(scope.row)"
             >选择</el-button>
+              <el-button
+                :plain="true"
+                type="info"
+                size="small"
+                icon="edit"
+                @click="editItem(scope.row)"
+              >标签</el-button>
+              <el-button
+                :plain="true"
+                type="info"
+                size="small"
+                icon="edit"
+                @click="saveItem(scope.row)"
+              >保存</el-button>
             </template>
           </el-table-column>
         </el-table>

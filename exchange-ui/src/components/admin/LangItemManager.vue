@@ -1,5 +1,8 @@
 <template>
-    <el-dialog :visible.sync="showDialog" :append-to-body="true" width="60%">
+    <el-dialog :visible.sync="showDialog" 
+    :append-to-body="true"
+    :close-on-click-modal="false"
+     width="60%">
       <el-row>
         {{messageKey}}
       </el-row>

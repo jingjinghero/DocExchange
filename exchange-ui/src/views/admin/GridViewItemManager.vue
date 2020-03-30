@@ -263,6 +263,7 @@ export default {
       axios
         .post("/admin/updateGridViewItem", JSON.stringify(indata))
         .then(function(response) {
+          _self.dialogVisible = false;
           _self.$message("保存成功!");
         })
         .catch(function(error) {
