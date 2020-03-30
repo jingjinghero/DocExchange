@@ -1,5 +1,6 @@
 package com.zisecm.docexchange.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import com.ecm.core.cache.manager.CacheManagerOper;
 import com.ecm.core.entity.EcmContent;
 import com.ecm.core.entity.EcmDocument;
 import com.ecm.core.entity.EcmFolder;
+import com.ecm.core.entity.EcmGridView;
 import com.ecm.core.entity.EcmRelation;
 import com.ecm.core.entity.Pager;
 import com.ecm.core.exception.EcmException;
@@ -73,7 +75,49 @@ public class DocTransfer extends ControllerAbstract{
 		mp.put("code", ActionContext.SUCESS);
 		return mp;
 	}
-	
+	/**
+	 * 通过配置获取文件夹
+	 * @param param
+	 * @return
+	 */
+	@RequestMapping(value="/folder/getArchiveFolderByConfige", method = RequestMethod.POST)
+	@ResponseBody	
+	public Map<String, Object> getFolderByConfige(@RequestBody String param) {
+		Map<String, Object> mp = new HashMap<String, Object>();
+		try {
+			String id ="";
+			try {
+				id= CacheManagerOper.getEcmParameters().get(param).getValue();
+			}catch (NullPointerException e) {
+				// TODO: handle exception
+				id=param;
+			}
+			List<EcmFolder> folders=folderService.getFoldersByParentId(getToken(), id);
+			List<EcmFolder> resultData=new ArrayList<>();
+			for(EcmFolder f:folders) {
+				EcmGridView gv = CacheManagerOper.getEcmGridViews().get(f.getGridView());
+				String gvCondition=gv.getCondition();
+				String sql="select count(*) as num from ecm_document where "+gvCondition+" and FOLDER_ID in( " + 
+						"select id from ecm_folder where FOLDER_PATH like '"+f.getFolderPath()+"%' " + 
+						")";
+				List<Map<String,Object>> numberData= documentService.getMapList(getToken(), sql);
+				if(numberData!=null&&numberData.size()>0&&numberData.get(0)!=null) {
+					String name=f.getName();
+					f.setName(name+"("+numberData.get(0).get("num").toString()+")");
+					
+				}
+				resultData.add(f);
+			}
+			mp.put("code", ActionContext.SUCESS);
+			mp.put("data", resultData);
+		}
+		catch(Exception ex) {
+			ex.printStackTrace();
+			mp.put("code", ActionContext.FAILURE);
+			mp.put("message", ex.getMessage());
+		}
+		return mp;
+	}
 	/**
 	 * 获取配置参数
 	 * @param argStr

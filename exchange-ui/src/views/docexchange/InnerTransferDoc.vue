@@ -1,5 +1,13 @@
 <template>
   <div>
+    <el-dialog :visible.sync="showAddfile" :modal-append-to-body='false'>
+      <AddFile ref="addfile" ></AddFile>
+      <div slot="footer" class="dialog-footer">
+        <el-button >{{$t('application.save')}}</el-button>
+        <el-button @click="showAddfile = false">{{$t('application.cancel')}}</el-button>
+      </div>
+    </el-dialog>
+
     <el-dialog :visible.sync="typeSelectVisible" :append-to-body='true'>
       <el-form>
         <el-form-item label="文件类型" :rules="[{required:true,message:'必填',trigger:'blur'}]">
@@ -61,7 +69,7 @@
           size="small"
           icon="el-icon-edit"
           @click="beforeCreateFile()"
-        >新建传递单</el-button>
+        >新建传递文件</el-button>
         
         
          <el-button
@@ -71,6 +79,19 @@
           icon="el-icon-delete"
           @click="onDeleleItem()"
         >{{$t('application.delete')}}</el-button>
+        <el-button
+          type="primary"
+          plain
+          size="small"
+          icon="el-icon-edit"
+          @click="showAddfile=true"
+        >添加传递文件</el-button>
+        <el-button
+          type="primary"
+          plain
+          size="small"
+          icon="el-icon-edit"
+        >移除传递文件</el-button>
       </el-col>
     </el-row>
     <el-row>
@@ -100,7 +121,7 @@
 import ShowProperty from "@/components/ShowProperty";
 import DataGrid from "@/components/DataGrid";
 import DataGridleft from "@/components/DataGrid";
-
+import AddFile from "@/views/docexchange/AddFile"
 
 
 export default {
@@ -117,7 +138,7 @@ export default {
       showFields: [],
       itemDataList: [],
       itemDataListFull: [],
-      
+      showAddfile:false,
       
       selectedTypeName: [],
       printGridName:"",
@@ -860,6 +881,7 @@ export default {
     ShowProperty: ShowProperty,
     
     DataGrid: DataGrid,
+    AddFile:AddFile,
     
   }
 };
