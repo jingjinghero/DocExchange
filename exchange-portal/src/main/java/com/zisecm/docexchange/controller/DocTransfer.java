@@ -30,6 +30,7 @@ import com.ecm.core.service.FolderPathService;
 import com.ecm.core.service.FolderService;
 import com.ecm.core.service.RelationService;
 import com.ecm.portal.controller.ControllerAbstract;
+import com.zisecm.docexchange.services.TransferRelationService;
 @Controller
 public class DocTransfer extends ControllerAbstract{
 	@Autowired
@@ -38,6 +39,71 @@ public class DocTransfer extends ControllerAbstract{
 	private FolderService folderService;
 	@Autowired
 	private RelationService relationService;
+	@Autowired
+	private TransferRelationService transferRelationService;
+	/**
+	 * 文件移除卷盒
+	 * @param param
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value="/dc/removeFromArchive", method = RequestMethod.POST)
+	public Map<String, Object> removeFromArchive(@RequestBody String param) {
+
+		Map<String, Object> args = JSONUtils.stringToMap(param);
+		String fileIdStr= (String)args.get("fileIds");
+		String archiveId=(String)args.get("archiveId");
+		List<String> fileIds=JSONUtils.stringToArray(fileIdStr);
+		Map<String, Object> mp = new HashMap<String, Object>();
+		try {
+			
+			
+			transferRelationService.deleteArchiveRelation(archiveId, "irel_transmit", fileIds);
+			
+			mp.put("code", ActionContext.SUCESS);
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			mp.put("code", ActionContext.FAILURE);
+		}
+		
+		return mp;
+	
+	}
+	/**
+	 * 添加文件至移交单
+	 * @param argStr
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/dc/addReuseToVolume", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> addReuseToVolume(@RequestBody String argStr) throws Exception {
+		Map<String, Object> args = JSONUtils.stringToMap(argStr);
+		String pid=args.get("id").toString();
+		String cids=args.get("cids").toString();
+		List<String> designIds=JSONUtils.stringToArray(cids);
+		for(int i=0;designIds!=null&&i<designIds.size();i++) {
+			String id=designIds.get(i).toString();
+			EcmRelation relation=new EcmRelation();
+			relation.setParentId(pid);
+			relation.setChildId(id);
+			relation.setName("irel_transmit");
+//			relation.setDescription("复用");
+			try {
+				relationService.newObject(getToken(), relation);
+			} catch (EcmException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		
+		Map<String, Object> mp = new HashMap<String, Object>();
+		mp.put("code", ActionContext.SUCESS);
+		return mp;
+	}
 	
 	/**
 	 * 获取文件夹下文件

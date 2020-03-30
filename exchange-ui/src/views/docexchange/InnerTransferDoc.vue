@@ -3,7 +3,7 @@
     <el-dialog :visible.sync="showAddfile" :append-to-body='true' width="80%">
       <AddFile ref="addfile" ></AddFile>
       <div slot="footer" class="dialog-footer">
-        <el-button >{{$t('application.save')}}</el-button>
+        <el-button @click="addReuseToVolume">{{$t('application.save')}}</el-button>
         <el-button @click="showAddfile = false">{{$t('application.cancel')}}</el-button>
       </div>
     </el-dialog>
@@ -71,14 +71,6 @@
           @click="beforeCreateFile()"
         >新建传递文件</el-button>
         
-        
-         <el-button
-          type="primary"
-          plain
-          size="small"
-          icon="el-icon-delete"
-          @click="onDeleleItem()"
-        >{{$t('application.delete')}}</el-button>
         <el-button
           type="primary"
           plain
@@ -90,7 +82,8 @@
           type="primary"
           plain
           size="small"
-          icon="el-icon-edit"
+          icon="el-icon-delete"
+          @click="removeFromArchive"
         >移除传递文件</el-button>
       </el-col>
     </el-row>
@@ -105,7 +98,7 @@
           @pagechange="pageChange"
           v-bind:itemCount="itemCount"
           v-bind:tableHeight="rightTableHeight"
-          v-bind:isshowOption="true" v-bind:isshowSelection ="false"
+          v-bind:isshowOption="true" v-bind:isshowSelection ="true"
           v-bind:propertyComponent="this.$refs.ShowProperty"
           @rowclick="selectedRow"
           @selectchange="selectChange"
@@ -239,6 +232,106 @@ export default {
     this.loadGridData();
   },
   methods: {
+    // 表格行选择
+    selectChange(val) 
+    {
+      // console.log(JSON.stringify(val));
+      this.selectedInnerItems = val;
+    },
+    removeFromArchive()
+    {
+      let _self = this;
+      
+
+      if(_self.selectedInnerItems.length==0)
+      {
+        _self.$message({
+                showClose: true,
+                message: '请选择一条或多条文件！',
+                duration: 2000,
+                type: "waring"
+              });
+        
+        return;
+      }
+      var m = new Map();
+      m.set('archiveId',_self.transferId);
+      let innerIds=new Array();
+      for(let i=0;i<_self.selectedInnerItems.length;i++)
+      {
+        innerIds.push(_self.selectedInnerItems[i].ID);
+      }
+      m.set('fileIds',innerIds);
+
+      // console.log('pagesize:', _self.pageSize);
+      _self
+      .axios({
+        headers: {
+          "Content-Type": "application/json;charset=UTF-8"
+        },
+        method: "post",
+        data: JSON.stringify(m),
+        url: "/dc/removeFromArchive"
+      })
+      .then(function(response) {
+       _self.loadGridData();
+        
+        //console.log(JSON.stringify(response.data.datalist));
+        _self.loading = false;
+      })
+      .catch(function(error) {
+        console.log(error);
+        _self.loading = false;
+      });
+    },
+    addReuseToVolume() {
+      let _self = this;
+      _self.selectedReuses = _self.$refs.addfile.selectedItems;
+
+      var params = new Map();
+      var m = [];
+      let tab = _self.selectedReuses;
+
+      var i;
+      for (i in tab) {
+        m.push(tab[i]["ID"]);
+      }
+      params.set("cids", m);
+      params.set("id", _self.transferId);
+      console.log(JSON.stringify(m));
+      _self
+        .axios({
+          headers: {
+            "Content-Type": "application/json;charset=UTF-8"
+          },
+          method: "post",
+          data: JSON.stringify(params),
+          url: "/dc/addReuseToVolume"
+        })
+        .then(function(response) {
+          _self.loadGridData(null);
+
+          // _self.showInnerFile(null);
+          _self.showAddfile = false;
+          // _self.$message("添加成功！");
+          _self.$message({
+                showClose: true,
+                message: '添加成功！',
+                duration: 2000,
+                type: "success"
+              });
+        })
+        .catch(function(error) {
+          // _self.$message("添加失败！");
+          _self.$message({
+                showClose: true,
+                message: '添加失败！',
+                duration: 5000,
+                type: "error"
+              });
+          console.log(error);
+        });
+    },
     // 加载表格样式
     loadGridInfo() {
       let _self = this;

@@ -106,7 +106,7 @@
                       <DataGrid ref="mainDataGrid" key="main" v-bind:itemDataList="itemDataList"
                       v-bind:columnList="gridList" @pagesizechange="pageSizeChange"
                       @pagechange="pageChange" v-bind:itemCount="itemCount"
-                      v-bind:tableHeight="rightTableHeight" :isshowOption="true" :isshowSelection ="false"
+                      v-bind:tableHeight="rightTableHeight" :isshowOption="true" :isshowSelection ="true"
                       @rowclick="beforeShowInnerFile" @selectchange="selectChange"></DataGrid>
                     
                     
