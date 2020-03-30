@@ -23,6 +23,7 @@ import com.ecm.core.entity.EcmFolder;
 import com.ecm.core.entity.EcmGridView;
 import com.ecm.core.entity.EcmRelation;
 import com.ecm.core.entity.Pager;
+import com.ecm.core.exception.AccessDeniedException;
 import com.ecm.core.exception.EcmException;
 import com.ecm.core.service.DocumentService;
 import com.ecm.core.service.FolderPathService;
@@ -37,6 +38,37 @@ public class DocTransfer extends ControllerAbstract{
 	private FolderService folderService;
 	@Autowired
 	private RelationService relationService;
+	
+	/**
+	 * 获取文件夹下文件
+	 * @param argStr
+	 * @return
+	 */
+	@RequestMapping(value = "/dc/getInnerFolderDocuments", method = RequestMethod.POST) // PostMapping("/dc/getDocumentCount")
+	@ResponseBody
+	public Map<String, Object> getDocuments(@RequestBody String argStr) {
+		Map<String, Object> mp = new HashMap<String, Object>();
+		try {
+			Map<String, Object> args = JSONUtils.stringToMap(argStr);
+			int pageSize = Integer.parseInt(args.get("pageSize").toString());
+			int pageIndex = Integer.parseInt(args.get("pageIndex").toString());
+			Pager pager = new Pager();
+			pager.setPageIndex(pageIndex);
+			pager.setPageSize(pageSize);
+			List<Map<String, Object>> list = documentService.getObjectsByConditon(getToken(),
+					args.get("gridName").toString(), args.get("folderId").toString(),
+					pager,
+					args.get("condition")!=null?args.get("condition").toString():"", args.get("orderBy").toString());
+			mp.put("data", list);
+			mp.put("pager", pager);
+			mp.put("code", ActionContext.SUCESS);
+		} catch (AccessDeniedException e) {
+			mp.put("code", ActionContext.TIME_OUT);
+		}
+		
+		return mp;
+	}
+	
 	/**
 	 * 删除文件和关系
 	 * @param argStr

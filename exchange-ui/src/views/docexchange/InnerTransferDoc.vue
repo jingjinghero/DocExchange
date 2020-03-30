@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-dialog :visible.sync="showAddfile" :modal-append-to-body='false'>
+    <el-dialog :visible.sync="showAddfile" :append-to-body='true' width="80%">
       <AddFile ref="addfile" ></AddFile>
       <div slot="footer" class="dialog-footer">
         <el-button >{{$t('application.save')}}</el-button>

@@ -143,7 +143,7 @@ export default {
   data() {
     return {
       isExpand:false,
-      rightTableHeight: (window.innerHeight - 202)/2,
+      rightTableHeight: (window.innerHeight - 100)/2,
       asideHeight: window.innerHeight - 55,
       treeHight: window.innerHeight - 95,
       asideWidth: '100%',
@@ -785,7 +785,7 @@ export default {
       let _self = this;
       _self.loading = true;
       var m = new Map();
-      m.set('gridName',"ArrangeGrid");
+      m.set('gridName',indata.gridView);
       m.set('lang',_self.currentLanguage);
       _self.axios({
         headers: {
@@ -910,18 +910,9 @@ export default {
       var key =_self.inputkey;
       var m = new Map();
       if(key!=""){
-        key = " (coding like '%"+key+"%' or title like '%"+key+"%') "; 
-        if(_self.radio=='卷盒'){
-          m.set('condition',key+" and TYPE_NAME='卷盒' ");
-        }else{
-          m.set('condition',key+" and TYPE_NAME='图册' ");
-        }
-      }else{
-        if(_self.radio=='卷盒'){
-          m.set('condition'," TYPE_NAME='卷盒' ");
-        }else{
-          m.set('condition'," TYPE_NAME='图册' ");
-        }
+        key = " (coding like '%"+key+"%' or title like '%"+key+"%') ";
+        m.set('condition',key);
+        
       }
       
       m.set('gridName',indata.gridView);
@@ -1029,8 +1020,8 @@ export default {
       }
       _self.loadGridInfo(indata);
       _self.loadGridData(indata);
-      _self.loadOutGridInfo();
-      _self.loadGridOutData(_self.currentFolder);
+    //   _self.loadOutGridInfo();
+    //   _self.loadGridOutData(_self.currentFolder);
       
     },
     loadGridOutData(indata){
