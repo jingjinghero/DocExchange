@@ -85,6 +85,13 @@
           icon="el-icon-delete"
           @click="removeFromArchive"
         >移除传递文件</el-button>
+        <el-button
+          type="primary"
+          plain
+          size="small"
+          icon="el-icon-delete"
+          @click="addToShoppingCar(selectedInnerItems)"
+        >添加购物车</el-button>
       </el-col>
     </el-row>
     <el-row>

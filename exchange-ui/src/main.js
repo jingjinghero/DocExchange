@@ -6,6 +6,7 @@ import i18n from './assets/locales'
 import './plugins/element.js'
 import './plugins/axios.js'
 import './plugins/formatter.js'
+import addToShoppingCar from './plugins/shoppingcar'
 import echarts from 'echarts'
 import './assets/icons/iconfont.css'
 import ImgViewer from 'v-viewer'
@@ -16,9 +17,12 @@ import './assets/styles/main.css'
 import "babel-polyfill"
 import splitPane from 'vue-splitpane'
 
+
+
 Vue.component('split-pane', splitPane);
 Vue.prototype.$video = Video
 Vue.use(ImgViewer)
+Vue.prototype.addToShoppingCar=addToShoppingCar
 Vue.config.productionTip = false
 Vue.prototype.getLang = function (){
   let lang = localStorage.getItem("localeLanguage") || "zh-cn"
