@@ -10,11 +10,11 @@
 
     <el-dialog :visible.sync="typeSelectVisible" :append-to-body='true'>
       <el-form>
-        <el-form-item label="文件类型" :rules="[{required:true,message:'必填',trigger:'blur'}]">
+        <el-form-item :label="$t('application.fileType')" :rules="[{required:true,message:'必填',trigger:'blur'}]">
           <el-select
             name="selectName"
             v-model="selectedTypeName"
-            placeholder="'请选择文件类型'"
+            placeholder="$t('application.selectFileType')"
             style="display:block;"
           >
             <div v-for="(name,nameIndex) in typeNames" :key="'T_'+nameIndex">
@@ -69,7 +69,7 @@
           size="small"
           icon="el-icon-edit"
           @click="beforeCreateFile()"
-        >新建传递文件</el-button>
+        >{{$t('application.createFileToTransfer')}}</el-button>
         
         <el-button
           type="primary"
@@ -77,21 +77,21 @@
           size="small"
           icon="el-icon-edit"
           @click="showAddfile=true"
-        >添加传递文件</el-button>
+        >{{$t('application.addToTransfer')}}</el-button>
         <el-button
           type="primary"
           plain
           size="small"
           icon="el-icon-delete"
           @click="removeFromArchive"
-        >移除传递文件</el-button>
+        >{{$t('application.removeFromTransfer')}}</el-button>
         <el-button
           type="primary"
           plain
           size="small"
           icon="el-icon-delete"
           @click="addToShoppingCar(selectedInnerItems)"
-        >添加购物车</el-button>
+        >{{$t('application.addToShoppingCart')}}</el-button>
       </el-col>
     </el-row>
     <el-row>
@@ -254,7 +254,7 @@ export default {
       {
         _self.$message({
                 showClose: true,
-                message: '请选择一条或多条文件！',
+                message: _self.$t('message.selectOneOrMoreData'),
                 duration: 2000,
                 type: "waring"
               });
@@ -323,7 +323,7 @@ export default {
           // _self.$message("添加成功！");
           _self.$message({
                 showClose: true,
-                message: '添加成功！',
+                message: _self.$t('message.addSuccess'),
                 duration: 2000,
                 type: "success"
               });
@@ -332,7 +332,7 @@ export default {
           // _self.$message("添加失败！");
           _self.$message({
                 showClose: true,
-                message: '添加失败！',
+                message: _self.$t('message.addFaild'),
                 duration: 5000,
                 type: "error"
               });
@@ -519,7 +519,7 @@ export default {
               // _self.$message("创建成功!");
               _self.$message({
                 showClose: true,
-                message: "创建成功!",
+                message: _self.$t('message.newSuccess'),
                 duration: 2000,
                 type: "success"
               });
@@ -531,7 +531,7 @@ export default {
               // _self.$message("新建失败!");
               _self.$message({
                 showClose: true,
-                message: "新建失败!",
+                message: _self.$t('message.newFailured'),
                 duration: 2000,
                 type: "warning"
               });
@@ -541,7 +541,7 @@ export default {
             // _self.$message("新建失败!");
             _self.$message({
                 showClose: true,
-                message: "新建失败!",
+                message: _self.$t('message.newFailured'),
                 duration: 5000,
                 type: "error"
               });
@@ -566,7 +566,7 @@ export default {
               // _self.$message("保存失败!");
               _self.$message({
                 showClose: true,
-                message: "保存失败!",
+                message: _self.$t('message.saveFailured'),
                 duration: 5000,
                 type: "error"
               });
@@ -576,7 +576,7 @@ export default {
             // _self.$message("保存失败!");
             _self.$message({
                 showClose: true,
-                message: "保存失败!",
+                message:  _self.$t('message.saveFailured'),
                 duration: 5000,
                 type: "error"
               });
@@ -736,7 +736,7 @@ export default {
         // _self.$message("新建成功!");
         _self.$message({
             showClose: true,
-            message: "新建成功",
+            message: _self.$t("message.newSuccess"),
             duration: 2000,
             type: 'success'
           });
@@ -756,7 +756,7 @@ export default {
         // _self.$message("请选择一条要删除的图册或卷盒数据！");
         _self.$message({
             showClose: true,
-            message: "请选择一条要删除的图册或卷盒数据！",
+            message: _self.$t('message.selectOneOrMoreDeleteData'),
             duration: 2000,
             type: 'warning'
           });
@@ -795,7 +795,7 @@ export default {
         // _self.$message("请选择一条要删除的图册或卷盒数据！");
         _self.$message({
               showClose: true,
-              message: "请选择一条要删除的图册或卷盒数据！",
+              message: _self.$t('message.selectOneOrMoreDeleteData'),
               duration: 2000,
               type: 'warning'
           });
@@ -842,7 +842,7 @@ export default {
         // _self.$message("请选择一条要删除的文件数据！")
         _self.$message({
               showClose: true,
-              message: "请选择一条要删除的文件数据！",
+              message: _self.$t('message.selectOneOrMoreDeleteData'),
               duration: 2000,
               type: 'warning'
           });
@@ -882,7 +882,7 @@ export default {
         // _self.$message("请选择一条要删除的文件数据！")
         _self.$message({
               showClose: true,
-              message: "请选择一条要删除的文件数据！",
+              message: _self.$t('message.selectOneOrMoreDeleteData'),
               duration: 2000,
               type: 'warning'
           });
