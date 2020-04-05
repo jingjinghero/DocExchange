@@ -106,7 +106,7 @@
                       <DataGrid ref="mainDataGrid" key="main" v-bind:itemDataList="itemDataList"
                       v-bind:columnList="gridList" @pagesizechange="pageSizeChange"
                       @pagechange="pageChange" v-bind:itemCount="itemCount"
-                      v-bind:tableHeight="rightTableHeight" :isshowOption="true" :isshowSelection ="false"
+                      v-bind:tableHeight="rightTableHeight" :isshowOption="true" :isshowSelection ="true"
                       @rowclick="beforeShowInnerFile" @selectchange="selectChange"></DataGrid>
                     
                     
@@ -278,203 +278,7 @@ export default {
     selectOneOutFile(row){
       this.selectedOneOutItem=row;
     },
-    //著录文件
-    beforeCreateFile(){
-      let _self=this;
-      
-      if(_self.selectRow.ID==undefined){
-        // _self.$message('请选择一条数据！')
-        _self.$message({
-                showClose: true,
-                message: '请选择一条数据！',
-                duration: 2000,
-                type: "warning"
-              });
-        return;
-      }
-       _self.selectedChildrenType=[];
-      if(_self.selectRow.TYPE_NAME=='图册'){
-        _self.getTypeNamesByMainList("图册");
-      }else{
-        _self.getTypeNamesByMainList(_self.selectRow.SUB_TYPE);
-      }
-      _self.childrenTypeSelectVisible=true;
-      
-
-    },
-  ///打印背脊
-    beforePrintRidge(selectedRow,gridName,vtitle){
-      let _self=this;
-      if(selectedRow.ID==undefined){
-        // _self.$message('请选择一条数据进行打印');
-        _self.$message({
-                showClose: true,
-                message: '请选择一条数据进行打印',
-                duration: 2000,
-                type: "warning"
-              });
-        return;
-      }
-      _self.printRidgeVisible = true;
-
-      setTimeout(()=>{
-        _self.$refs.printRidge.dialogQrcodeVisible = false
-        _self.$refs.printRidge.getArchiveObj(selectedRow.ID,
-        gridName,
-        vtitle); 
-      },10);
-
-      _self.printGridName=gridName;
-      _self.printObjId=selectedRow.ID;
-    },
-    ///上架
-    putInStorage(){
-      let _self=this;
-      if(_self.radio!='卷盒'){
-          // _self.$message('请选择卷盒数据！');
-          _self.$message({
-                showClose: true,
-                message: '请选择卷盒数据！',
-                duration: 2000,
-                type: "warning"
-              });
-          return;
-      }
-      if(_self.selectRow.ID==undefined){
-        //  _self.$message('请选择一条或多条卷盒数据！');
-         _self.$message({
-                showClose: true,
-                message: '请选择一条卷盒数据！',
-                duration: 2000,
-                type: "warning"
-              });
-          return;
-      }
-
-      // let tab=_self.selectedItems;
-      let m = [];
-      // let i;
-      // for(i in tab){
-      //   if(tab[i]["CODING"]==undefined ||tab[i]["CODING"]=="")
-      //   {
-      //     _self.$message("所选卷盒中有未取号的数据，请先对其进行取号并提取信息！");
-      //     return;
-      //   }
-      //   m.push(tab[i]["ID"]);
-      // }
-      m.push(_self.selectRow.ID);
-      _self.axios({
-          headers: {
-            "Content-Type": "application/json;charset=UTF-8"
-          },
-          method: "post",
-          data: JSON.stringify(m),
-          url: "/dc/putInStorage"
-        })
-        .then(function(response) {
-          _self.loadGridData(_self.currentFolder);
-          _self.innerDataList=[];
-            // _self.showInnerFile(null);
-          // _self.$message(_self.$t("message.warehousingSuccess"));
-          _self.$message({
-              showClose: true,
-              message: _self.$t("message.warehousingSuccess"),
-              duration: 2000,
-              type: 'success'
-            });
-        })
-        .catch(function(error) {
-          // _self.$message(_self.$t("message.warehousingFail"));
-          _self.$message({
-                  showClose: true,
-                  message: _self.$t("message.warehousingFail"),
-                  duration: 5000,
-                  type: "error"
-                });
-          console.log(error);
-      });
-
-    },
-    selectOneFile(row){
-      let _self = this;
-      if(row!=null)
-      {
-        _self.innerSelectedOne=row;
-        _self.selectedFileId=row.ID;
-      }
-    },
-    changeRadio(val){
-      let _self=this;
-      _self.itemDataList=[];
-       _self.loadGridData(_self.currentFolder);
-       _self.innerDataList=[];
-       _self.outerDataList=[];
-    },
-    //上移
-    onMoveUp(){
-      let _self=this;
-      if(_self.innerSelectedOne.ID==undefined){
-        //  _self.$message("请选择一条数据！");
-         _self.$message({
-                showClose: true,
-                message: "请选择一条数据！",
-                duration: 2000,
-                type: "warning"
-              });
-        return;
-      }
-      var m = new Map();
-      m.set('parentId',_self.archiveId);
-      m.set('childId',_self.innerSelectedOne.ID);
-       _self.axios({
-        headers: {
-          "Content-Type": "application/json;charset=UTF-8"
-        },
-        method: 'post',
-        data: JSON.stringify(m),
-        url: "/dc/moveUp"
-      })
-        .then(function(response) {
-          
-          let code = response.data.code;
-          //console.log(JSON.stringify(response));
-          if(code==1){
-            _self.showInnerFile(null);
-          }
-          else{
-            //  _self.$message( response.data.message);
-             _self.$message({
-                  showClose: true,
-                  message: response.data.message,
-                  duration: 5000,
-                  type: "error"
-                });
-          }
-        })
-        .catch(function(error) {
-          console.log(error);
-          _self.loading = false;
-        });
-    },
-    //挂载
-    beforeMount(selrow){
-      
-      let _self=this;
-      _self.fileList=[];
-      if(selrow.ID==undefined){
-        //  _self.$message("请选择一条数据！");
-         _self.$message({
-                showClose: true,
-                message: "请选择一条数据！",
-                duration: 2000,
-                type: "warning"
-              });
-        return;
-      }
-      _self.uploadID=selrow.ID;
-      _self.importdialogVisible=true;
-      
-    },
+  
     getFormData(selId){
       let _self = this;
       let formdata = new FormData();
@@ -518,90 +322,10 @@ export default {
         console.log(error);
       });
     },
-    //下移
-    onMoveDown(){
-      let _self=this;
-      if(_self.innerSelectedOne.ID==undefined){
-        //  _self.$message("请选择一条数据！");
-         _self.$message({
-                showClose: true,
-                message: "请选择一条数据！",
-                duration: 2000,
-                type: "warning"
-              });
-        return;
-      }
-      var m = new Map();
-      m.set('parentId',_self.archiveId);
-      m.set('childId',_self.innerSelectedOne.ID);
-       _self.axios({
-        headers: {
-          "Content-Type": "application/json;charset=UTF-8"
-        },
-        method: 'post',
-        data: JSON.stringify(m),
-        url: "/dc/moveDown"
-      })
-        .then(function(response) {
-          
-          let code = response.data.code;
-          //console.log(JSON.stringify(response));
-          if(code==1){
-            _self.showInnerFile(null);
-          }
-          else{
-            //  _self.$message( response.data.message);
-             _self.$message({
-                showClose: true,
-                message: response.data.message,
-                duration: 2000,
-                type: "warning"
-              });
-          }
-        })
-        .catch(function(error) {
-          console.log(error);
-          _self.loading = false;
-        });
-    },
     handleChange(file, fileList){
       this.fileList = fileList;
     },
-    // 分页 当前页改变
-    innerPageChange(val)
-    {
-      this.innerCurrentPage = val;
-      this.showInnerFilepageChange();
-      //console.log('handleCurrentChange', val);
-    },
     
-    // 加载表格样式
-    loadOutGridInfo() 
-    {
-      let _self = this;
-      _self.loading = true;
-      var m = new Map();
-      m.set('gridName','ArrangeInnerGrid');
-      m.set('lang',_self.currentLanguage);
-      _self.axios({
-        headers: {
-          "Content-Type": "application/json;charset=UTF-8"
-        },
-        method: 'post',
-        data: JSON.stringify(m),
-        url: "/dc/getGridViewInfo"
-      })
-        .then(function(response) {
-          
-          _self.outerGridList = response.data.data;
-          _self.rightTableHeight = "100%";
-          _self.loading = false;
-        })
-        .catch(function(error) {
-          console.log(error);
-          _self.loading = false;
-        });
-    },
     loadInnerGridInfo(){
       let _self = this;
       _self.loading = true;
@@ -1307,65 +1031,9 @@ export default {
       _self.loadGridData(_self.currentFolder);
       _self.loadGridOutData(_self.currentFolder);
     },
-    //开卷
-    onOpenPage(){
-      let _self = this;
-      var m=new Map();
-      let tab = _self.selectedItems;
-      if(tab.length<1)
-      {
-        _self.$message("请选择一条或多条案卷数据！");
-        return;
-      }
-      m.set("files",tab);
-      console.log(JSON.stringify(m));
-      _self.axios({
-          headers: {
-            "Content-Type": "application/json;charset=UTF-8"
-          },
-          method: "post",
-          data: JSON.stringify(m),
-          url: "/dc/openPage"
-        })
-        .then(function(response) {
-          _self.loadGridData(_self.currentFolder);
-          _self.$message(_self.$t("message.openPage")+_self.$t("message.success"));
-        })
-        .catch(function(error) {
-          _self.$message(_self.$t("message.openPage")+_self.$t("message.failured"));
-          console.log(error);
-      });
-    },
+    
 
-    //封卷
-    onClosePage(){
-      let _self = this;
-      var m=new Map();
-      let tab = _self.selectedItems;
-      if(tab.length<1)
-      {
-        _self.$message("请选择一条或多条案卷数据！");
-        return;
-      }
-      m.set("files",tab);
-      console.log(JSON.stringify(m));
-      _self.axios({
-          headers: {
-            "Content-Type": "application/json;charset=UTF-8"
-          },
-          method: "post",
-          data: JSON.stringify(m),
-          url: "/dc/closePage"
-        })
-        .then(function(response) {
-          _self.loadGridData(_self.currentFolder);
-          _self.$message(_self.$t("message.closePage")+_self.$t("message.success"));
-        })
-        .catch(function(error) {
-          _self.$message(_self.$t("message.closePage")+_self.$t("message.failured"));
-          console.log(error);
-      });
-    },
+    
     // 删除文档事件
     onDeleleArchiveItem() {
       let _self = this;
@@ -1752,43 +1420,7 @@ export default {
           // });          
         });
     },
-    // 自动组卷
-    autoPaper() {
-      let _self = this;
-      var m=new Map();
-      let tab = _self.selectedOutItems;
-      m.set("files",tab);
-      console.log(JSON.stringify(m));
-      _self.axios({
-          headers: {
-            "Content-Type": "application/json;charset=UTF-8"
-          },
-          method: "post",
-          data: JSON.stringify(m),
-          url: "/dc/autoPaper"
-        })
-        .then(function(response) {
-          _self.loadGridOutData(_self.currentFolder);
-          _self.loadGridData(_self.currentFolder);
-          // _self.$message(_self.$t("message.paper"));
-          _self.$message({
-            showClose: true,
-            message: _self.$t("message.paper"),
-            duration: 2000,
-            type: 'success'
-            });
-        })
-        .catch(function(error) {
-          // _self.$message(_self.$t("message.paperFaild"));
-          _self.$message({
-                  showClose: true,
-                  message: _self.$t("message.paperFaild"),
-                  duration: 5000,
-                  type: "error"
-                });
-          console.log(error);
-      });
-    },
+    
     // 删除文档
     deleleFileItem() {
       let _self = this;

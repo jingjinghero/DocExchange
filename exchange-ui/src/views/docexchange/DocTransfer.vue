@@ -384,7 +384,7 @@ export default {
         // _self.$message('请选择一条图册或卷盒数据！')
         _self.$message({
                 showClose: true,
-                message: '请选择一条图册或卷盒数据！',
+                message: _self.$t('message.selectOneOrMoreDeleteData'),
                 duration: 2000,
                 type: "warning"
               });
@@ -399,7 +399,7 @@ export default {
         // _self.$message('请选择一条文件数据');
          _self.$message({
                 showClose: true,
-                message: '请选择一条文件数据!',
+                message: _self.$t('message.selectOneOrMoreDeleteData'),
                 duration: 2000,
                 type: "warning"
               });
@@ -416,7 +416,7 @@ export default {
         // _self.$message('请选择一条数据进行打印');
         _self.$message({
                 showClose: true,
-                message: '请选择一条数据进行打印!',
+                message: _self.$t('message.selectOneOrMoreData')+_self.$t('message.print'),
                 duration: 2000,
                 type: "warning"
               });
@@ -470,7 +470,7 @@ export default {
           // _self.$message("添加成功！");
           _self.$message({
                 showClose: true,
-                message: '添加成功！',
+                message: _self.$t('message.addSuccess'),
                 duration: 2000,
                 type: "success"
               });
@@ -479,7 +479,7 @@ export default {
           // _self.$message("添加失败！");
           _self.$message({
                 showClose: true,
-                message: '添加失败！',
+                message: _self.$t('message.addFaild'),
                 duration: 5000,
                 type: "error"
               });

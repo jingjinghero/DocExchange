@@ -67,7 +67,7 @@ const router = new Router({
 				reportRouter,
 				adminRouter,
 				userRouter,
-				docexchange,
+				...docexchange,
 				...testRouter
 			]
 		},

@@ -21,15 +21,16 @@ import com.ecm.core.entity.EcmContent;
 import com.ecm.core.entity.EcmDocument;
 import com.ecm.core.entity.EcmFolder;
 import com.ecm.core.entity.EcmGridView;
+import com.ecm.core.entity.EcmGridViewItem;
 import com.ecm.core.entity.EcmRelation;
 import com.ecm.core.entity.Pager;
 import com.ecm.core.exception.AccessDeniedException;
 import com.ecm.core.exception.EcmException;
 import com.ecm.core.service.DocumentService;
-import com.ecm.core.service.FolderPathService;
 import com.ecm.core.service.FolderService;
 import com.ecm.core.service.RelationService;
 import com.ecm.portal.controller.ControllerAbstract;
+import com.zisecm.docexchange.services.TransferRelationService;
 @Controller
 public class DocTransfer extends ControllerAbstract{
 	@Autowired
@@ -38,6 +39,71 @@ public class DocTransfer extends ControllerAbstract{
 	private FolderService folderService;
 	@Autowired
 	private RelationService relationService;
+	@Autowired
+	private TransferRelationService transferRelationService;
+	/**
+	 * 文件移除卷盒
+	 * @param param
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value="/dc/removeFromArchive", method = RequestMethod.POST)
+	public Map<String, Object> removeFromArchive(@RequestBody String param) {
+
+		Map<String, Object> args = JSONUtils.stringToMap(param);
+		String fileIdStr= (String)args.get("fileIds");
+		String archiveId=(String)args.get("archiveId");
+		List<String> fileIds=JSONUtils.stringToArray(fileIdStr);
+		Map<String, Object> mp = new HashMap<String, Object>();
+		try {
+			
+			
+			transferRelationService.deleteArchiveRelation(archiveId, "irel_transmit", fileIds);
+			
+			mp.put("code", ActionContext.SUCESS);
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			mp.put("code", ActionContext.FAILURE);
+		}
+		
+		return mp;
+	
+	}
+	/**
+	 * 添加文件至移交单
+	 * @param argStr
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/dc/addReuseToVolume", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> addReuseToVolume(@RequestBody String argStr) throws Exception {
+		Map<String, Object> args = JSONUtils.stringToMap(argStr);
+		String pid=args.get("id").toString();
+		String cids=args.get("cids").toString();
+		List<String> designIds=JSONUtils.stringToArray(cids);
+		for(int i=0;designIds!=null&&i<designIds.size();i++) {
+			String id=designIds.get(i).toString();
+			EcmRelation relation=new EcmRelation();
+			relation.setParentId(pid);
+			relation.setChildId(id);
+			relation.setName("irel_transmit");
+//			relation.setDescription("复用");
+			try {
+				relationService.newObject(getToken(), relation);
+			} catch (EcmException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		
+		Map<String, Object> mp = new HashMap<String, Object>();
+		mp.put("code", ActionContext.SUCESS);
+		return mp;
+	}
 	
 	/**
 	 * 获取文件夹下文件
@@ -283,6 +349,62 @@ public class DocTransfer extends ControllerAbstract{
 		return mp;
 	}
 	
+		/**
+		 * 购物车列表
+		 * @param argStr
+		 * @return
+		 */
+		@RequestMapping(value = "/dc/shopingCartDocList", method = RequestMethod.POST)
+		@ResponseBody
+		public Map<String, Object> openShopingCart(@RequestBody String argStr) {
+			
+			
+			Map<String, Object> args = JSONUtils.stringToMap(argStr);
+			int pageSize = Integer.parseInt(args.get("pageSize").toString());
+			int pageIndex = Integer.parseInt(args.get("pageIndex").toString());
+			Pager pager = new Pager();
+			pager.setPageIndex(pageIndex);
+			pager.setPageSize(pageSize);
+			
+			Map<String, Object> mp = new HashMap<String, Object>();
+			try {
+				String conditionWhere="";
+				if(args.get("condition")!=null) {
+					conditionWhere=args.get("condition").toString();
+				}
+				String gridName = args.get("gridName").toString();
+				EcmGridView gv = CacheManagerOper.getEcmGridViews().get(gridName);
+				String sql = "select * from(select a.ID as ID ,a.FORMAT_NAME as FORMAT_NAME" + getGridColumn(gv, gridName)
+						+ "  from ecm_document a,ecm_shoping_cart b where a.ID=b.DOCUMENT_ID  and b.user_name='" + getSession().getCurrentUser().getUserName()
+						+ "' "+conditionWhere+") t order by ADD_DATE desc";
+				
+				
+				List<Map<String, Object>>  list = documentService.getMapList(getToken(), sql,pager);
+				mp.put("data", list);
+				mp.put("pager", pager);
+				mp.put("code", ActionContext.SUCESS);
+				
+			}
+			catch(Exception ex) {
+				mp.put("code", ActionContext.FAILURE);
+				mp.put("message", ex.getMessage());
+			}
+			return mp;
+			
+		}
+		private String getGridColumn(EcmGridView gv, String gridName) {
+			String col = "";
+			String cols = ",";
+			if (gv != null) {
+				for (EcmGridViewItem item : gv.getGridViewItems()) {
+					if (cols.indexOf("," + item.getAttrName() + ",") > -1) {
+						continue;
+					}
+					col += "," + item.getAttrName();
+				}
+			}
+			return col;
+		}
 	/**
 	 * 创建案卷或文件
 	 * @param metaData

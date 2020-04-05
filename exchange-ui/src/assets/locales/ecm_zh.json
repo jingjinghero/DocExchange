@@ -132,7 +132,14 @@
     "fileBox":"卷盒",
     "warehousing":"上架",
     "addToShopingCart":"添加到借阅单",
-    "openShopingCart":"借阅单"
+    "openShopingCart":"借阅单",
+    "addToShoppingCart":"添加到购物车",
+    "removeFromTransfer":"移除传递文件",
+    "addToTransfer":"添加至传递单",
+    "createFileToTransfer":"新建传递文件",
+    "fileType":"文件类型",
+    "selectFileType":"请选择文件类型",
+    "Required":"必填"
 },
 "menu": {
     "home":"首页",
@@ -187,7 +194,13 @@
     "signImageSize":"56X26, 100dpi, jpg",
     "differentPassword":"新密码和确认密码不相同！",
     "cannotChangePassword":"用户不能修改密码！",
-    "pleaseSelectOneTransfer":"请选择一条移交单数据"
+    "pleaseSelectOneTransfer":"请选择一条移交单数据",
+    "selectOneOrMoreData":"请选择一条或多条数据",
+    "addSuccess":"添加成功",
+    "addFaild":"添加失败",
+    "selectOneOrMoreDeleteData":"请选择一条或多条要删除的数据",
+    "print":"打印",
+    "add":"添加"
 },
 "field": {
     "indexNumber":"序号",
