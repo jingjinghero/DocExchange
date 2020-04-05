@@ -229,6 +229,24 @@ export const adminRouter = {
         requireAuth: true,
         permit: 9
       },
+      path: '/managercenter/auditmanager',
+      component: () => import('@/views/admin/AuditManager.vue'),
+      name: '日志管理'
+    },
+    {
+      meta: {
+        requireAuth: true,
+        permit: 9
+      },
+      path: '/managercenter/syseventmanager',
+      component: () => import('@/views/admin/SysEventManager.vue'),
+      name: '事件管理'
+    },
+    {
+      meta: {
+        requireAuth: true,
+        permit: 9
+      },
       path: '/managercenter/systemmanager',
       component: () => import('@/views/admin/SystemManager.vue'),
       name: '系统配置'
