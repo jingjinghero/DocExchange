@@ -1,5 +1,6 @@
 package com.zisecm.docexchange.controller;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,8 +27,10 @@ import com.ecm.core.entity.EcmRelation;
 import com.ecm.core.entity.Pager;
 import com.ecm.core.exception.AccessDeniedException;
 import com.ecm.core.exception.EcmException;
+import com.ecm.core.service.ContentService;
 import com.ecm.core.service.DocumentService;
 import com.ecm.core.service.FolderService;
+import com.ecm.core.service.QueryService;
 import com.ecm.core.service.RelationService;
 import com.ecm.portal.controller.ControllerAbstract;
 import com.zisecm.docexchange.services.TransferRelationService;
@@ -41,6 +44,9 @@ public class DocTransfer extends ControllerAbstract{
 	private RelationService relationService;
 	@Autowired
 	private TransferRelationService transferRelationService;
+	@Autowired
+	private ContentService contentService;
+
 	/**
 	 * 文件移除卷盒
 	 * @param param
@@ -161,10 +167,10 @@ public class DocTransfer extends ControllerAbstract{
 		}
 		
 		//删除关系
-		String strSql="select id from ecm_relation where child_id in('"+String.join("','", list)+"')";
+		String strSql="select id from ecm_relation where parent_id in('"+String.join("','", list)+"')";
 		List<Map<String,Object>> relationIds=relationService.getMapList(getToken(), strSql);
 		for(Map<String,Object> rMap:relationIds) {
-			relationService.deleteObject(rMap.get("id").toString());
+			relationService.deleteObject(getToken(),rMap.get("id").toString());
 		}
 		
 		
@@ -239,6 +245,39 @@ public class DocTransfer extends ControllerAbstract{
 		
 		return mp;
 	}
+	
+	/**
+	 * 根据类型名称获取模板
+	 * @param argStr
+	 * @return
+	 */
+	@RequestMapping(value = "/dc/getTemplates", method = RequestMethod.POST) // PostMapping("/dc/getDocumentCount")
+	@ResponseBody
+	public Map<String, Object> getTemplates(@RequestBody String argStr) {
+		Map<String, Object> mp = new HashMap<String, Object>();
+		List<Map<String, Object>> dataMap=new ArrayList<Map<String,Object>>();
+		
+		String sql="select a.NAME,a.ID from ecm_document a,ecm_folder b where a.FOLDER_ID=b.id and b.FOLDER_PATH ='/系统配置/文件模板/"+argStr+"'";
+		
+		try {
+			dataMap= documentService.getMapList(getToken(), sql);
+		} catch (EcmException | AccessDeniedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			mp.put("code", ActionContext.FAILURE);
+			mp.put("message", e.getMessage());
+			return mp;
+		}
+		
+		
+		mp.put("data", dataMap);
+		mp.put("code", ActionContext.SUCESS);
+		
+		return mp;
+	}
+	
+	
+	
 	/**
 	 * 通过id查找relation中childId对应的document
 	 * @return
@@ -275,6 +314,53 @@ public class DocTransfer extends ControllerAbstract{
 		return mp;
 	
 	}
+	
+	/**
+	 * 创建案卷或文件
+	 * @param metaData
+	 * @param uploadFile
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/dc/newNoPropertiesDocument", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> newNoPropertiesDocument(@RequestBody String metaData) throws Exception {
+		Map<String, Object> mp = new HashMap<String, Object>();
+		Map<String, Object> args = JSONUtils.stringToMap(metaData);
+		
+		
+		String templateId= args.get("templateId").toString();
+
+		args.keySet().removeIf(key -> key.equals("templateId"));
+		EcmDocument doc = new EcmDocument();
+		doc.setAttributes(args);
+		
+		EcmContent en = contentService.getPrimaryContent(getToken(),templateId);
+		//EcmDocument doc = documentService.getObjectById(getToken(), id);
+		InputStream iStream = contentService.getContentStream(getToken(),en);
+		
+		EcmContent newContent=new EcmContent();
+		newContent.setName(en.getName());
+		newContent.setContentSize(en.getContentSize());
+		newContent.setFormatName(en.getFormatName());
+		newContent.setInputStream(iStream);
+
+		String folderId="";
+
+		EcmFolder folder= folderService.getObjectByPath(getToken(), (String)args.get("folderPath"));
+		folderId=folder.getId();
+		doc.setFolderId(folderId);
+		doc.setAclName(folder.getAclName());
+		
+		String id ="";
+		id= documentService.newObject(getToken(),doc,newContent);
+		
+		
+		mp.put("code", ActionContext.SUCESS);
+		mp.put("id", id);
+		return mp;
+	}
+	
 	/**
 	 * 创建案卷或文件
 	 * @param metaData
@@ -348,6 +434,8 @@ public class DocTransfer extends ControllerAbstract{
 		mp.put("id", id);
 		return mp;
 	}
+	
+	
 	
 		/**
 		 * 购物车列表

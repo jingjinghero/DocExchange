@@ -48,6 +48,7 @@
         </div>
       </el-dialog>
         <el-table
+          id="datatable"
           :height="tableHeight"
           :data="itemDataList"
           border
@@ -144,8 +145,9 @@
                 size="small"
                 :title="$t('application.viewContent')"
                 icon="el-icon-picture-outline"
-                @click="showItemContent(scope.row)"
+                @click="showMenu($event)"
               ></el-button>
+              <!-- showItemContent(scope.row) -->
               <el-button
                 type="primary"
                 plain
@@ -157,6 +159,13 @@
             </template>
           </el-table-column>
         </el-table>
+
+        <div id="menu" @mouseleave="leave">
+            <div class="menu" @click="showItemContent(selectedRow)">查看内容</div>
+            <div class="menu" @click="showItemProperty(selectedRow)">查看属性</div>
+            <div class="menu" @click="addToShoppingCar([selectedRow])">加入购物车</div>
+        </div>
+       
       <el-pagination
         v-if="isshowPage"
         background
@@ -225,8 +234,37 @@ export default {
   components: {
     ShowProperty: ShowProperty
   },
+  mounted(){
+    // this.ready();
+  },
   methods: {
-    
+    // ready(){
+      
+    //   document.addEventListener('click',(e)=>{
+    //       // let sp3 =document.getElementById("locationName")
+    //       let menu= document.querySelector("#menu");
+    //       if(!menu.contains(e.target)){
+    //         menu.style.display = 'none';
+    //       }
+    //       // if(menu.contains(e.target)&&menu.style.display=='none'){
+    //       //   menu.style.display = 'block';
+    //       // }else{
+    //       //   menu.style.display = 'none';
+    //       // }
+    //     })
+    // },
+    leave(){
+       var menu = document.querySelector("#menu");
+        menu.style.display = 'none';
+    },
+    //显示菜单
+    showMenu(event) { // 鼠标右击触发事件
+        var menu = document.querySelector("#menu");
+        menu.style.display = 'block';
+        menu.style.left = event.clientX - 0 + 'px'
+        menu.style.top = event.clientY - 80 + 'px'
+        
+    },
     // 查看内容
     showItemContent(indata) {
       let condition = indata.ID;
@@ -344,6 +382,7 @@ export default {
           : " DESC";
     },
     rowClick(row) {
+      
       this.selectedRow = row;
       this.$emit("rowclick", row);
     },
@@ -364,5 +403,27 @@ export default {
 .reject{
   color:red;
 }
-    
+    #menu {
+        width: 120px; 
+        height: 100px;
+        overflow: hidden; /*隐藏溢出的元素*/
+        box-shadow: 0 1px 1px #888, 1px 0 1px #ccc;
+        position: absolute; 
+        display: none;
+        background: #ffffff;
+        z-index: 10;
+    }
+ 
+    .menu {
+        width: 125px;
+        height: 25px;
+        line-height: 25px;
+        text-indent: 10px;
+        cursor: pointer;
+    }
+ 
+    .menu:hover {
+        color: deeppink;
+        text-decoration: underline;
+    }
 </style>

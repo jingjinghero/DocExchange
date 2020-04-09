@@ -98,10 +98,10 @@ export default {
     },
     downloadTemplate(){
       let _self = this;
-      if(_self.deliveryId==null || _self.deliveryId.length==0){
-        _self.$message("请选择移交单导入!");
-        return;
-      }
+      // if(_self.deliveryId==null || _self.deliveryId.length==0){
+      //   _self.$message("请选择移交单导入!");
+      //   return;
+      // }
       if(_self.selectedTemplate==null || _self.selectedTemplate.length==0){
         _self.$message("请选择模板!");
         return;
@@ -122,13 +122,13 @@ export default {
         _self.$message("请选择导入Excel文件!");
         return;
       }
-      if(_self.deliveryId==null || _self.deliveryId.length==0){
-         _self.$message("请选择移交单导入!");
-        return;
-      }
+      // if(_self.deliveryId==null || _self.deliveryId.length==0){
+      //    _self.$message("请选择移交单导入!");
+      //   return;
+      // }
       let formdata = new FormData();
       let m = new Map();
-      m.set("id", _self.deliveryId);
+      // m.set("id", _self.deliveryId);
       formdata.append("metaData", JSON.stringify(m));
       formdata.append("excel", _self.fileList1[0].raw);
       _self.fileList2.forEach(function(file) {

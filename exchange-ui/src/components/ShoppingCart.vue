@@ -254,10 +254,12 @@ export default {
        let m= new Map();
        let C_ARCHIVE_UNIT=sessionStorage.getItem("access-department");
                 var addItemId = [];
-        if (_self.selectedItemList.length > 0) {
-          for (var i = 0; i < _self.selectedItemList.length; i++) {
-                addItemId.push(_self.selectedItemList[i].ID);
-                if(typeof(_self.selectedItemList[i].C_ARCHIVE_UNIT)=="undefined"||C_ARCHIVE_UNIT!=_self.selectedItemList[i].C_ARCHIVE_UNIT||_self.selectedItemList[i].C_SECURITY_LEVEL!='内部公开'){
+        if (_self.selectedItems.length > 0) {
+          for (var i = 0; i < _self.selectedItems.length; i++) {
+                addItemId.push(_self.selectedItems[i].ID);
+                if(typeof(_self.selectedItems[i].C_ARCHIVE_UNIT)=="undefined"
+                ||C_ARCHIVE_UNIT!=_self.selectedItems[i].C_ARCHIVE_UNIT
+                ||_self.selectedItems[i].C_SECURITY_LEVEL!='内部公开'){
                 _self.$message({
                   showClose: true,
                   message: "只能晒本人所在部门且内部公开的图纸!",
@@ -318,11 +320,11 @@ export default {
 
  
 
-      if (_self.selectedItemList.length > 0) {
-        for (var i = 0; i < _self.selectedItemList.length; i++) {
+      if (_self.selectedItems.length > 0) {
+        for (var i = 0; i < _self.selectedItems.length; i++) {
           if(i==0){
-            C_ARCHIVE_UNIT=_self.selectedItemList[i].C_ARCHIVE_UNIT;
-              if(typeof(_self.selectedItemList[i].C_ARCHIVE_UNIT)=="undefined"){
+            C_ARCHIVE_UNIT=_self.selectedItems[i].C_ARCHIVE_UNIT;
+              if(typeof(_self.selectedItems[i].C_ARCHIVE_UNIT)=="undefined"){
               _self.$message({
                 showClose: true,
                 message: "所借阅档案，归档单位为空，不能外借!",
@@ -332,7 +334,7 @@ export default {
               return;
               }
           }else{
-            if(C_ARCHIVE_UNIT!=_self.selectedItemList[i].C_ARCHIVE_UNIT){
+            if(C_ARCHIVE_UNIT!=_self.selectedItems[i].C_ARCHIVE_UNIT){
               _self.$message({
                 showClose: true,
                 message: "所借阅档案，归档单位只能是同一个!",
@@ -358,7 +360,7 @@ export default {
             _self.$router.replace({
             path:'/borrow',
             query: { 
-              tabledata: _self.selectedItemList,
+              tabledata: _self.selectedItems,
               C_ARCHIVE_UNIT:C_ARCHIVE_UNIT
              }
           });
@@ -405,9 +407,9 @@ export default {
        let _self = this;
       var m = new Map();
       var addItemId = [];
-      if (_self.selectedItemList.length > 0) {
-        for (var i = 0; i < _self.selectedItemList.length; i++) {
-          addItemId.push(_self.selectedItemList[i].ID);
+      if (_self.selectedItems.length > 0) {
+        for (var i = 0; i < _self.selectedItems.length; i++) {
+          addItemId.push(_self.selectedItems[i].ID);
         }
       }
       if(addItemId.length==0){
@@ -453,9 +455,9 @@ export default {
     let _self = this;
       var m = new Map();
       var addItemId = [];
-      if (_self.selectedItemList.length > 0) {
-        for (var i = 0; i < _self.selectedItemList.length; i++) {
-          addItemId.push(_self.selectedItemList[i].ID);
+      if (_self.selectedItems.length > 0) {
+        for (var i = 0; i < _self.selectedItems.length; i++) {
+          addItemId.push(_self.selectedItems[i].ID);
         }
       }
       m.set("documentIds",addItemId);
