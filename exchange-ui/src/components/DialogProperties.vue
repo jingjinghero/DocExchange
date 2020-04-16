@@ -52,10 +52,10 @@
         <el-button type="primary" @click="download()">编辑文件</el-button>
       </div>
     </el-form>
-    <div slot="footer" class="dialog-footer">
+    <!-- <div slot="footer" class="dialog-footer">
         <el-button>取 消</el-button>
         <el-button type="primary" @click="saveItem()">保存</el-button>
-      </div>
+      </div> -->
   </div>
 </template>
 
@@ -64,7 +64,7 @@ import UserSelectInput from '@/components/controls/UserSelectInput'
 import AddCondition from '@/views/record/AddCondition'
 
 export default {
-  name: "ShowProperty",
+  name: "DialogProperties",
   components: {
     UserSelectInput:UserSelectInput,
     AddCondition:AddCondition
@@ -101,7 +101,7 @@ export default {
   },
   mounted() {
     this.currentLanguage = localStorage.getItem("localeLanguage") || "zh-cn";
-    this.myItemId=this.$route.query.docId;
+    
     this.loadFormInfo();
     this.clientPermission = sessionStorage.getItem(
         "access-clientPermission"

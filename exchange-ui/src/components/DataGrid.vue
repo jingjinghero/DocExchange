@@ -164,6 +164,7 @@
             <div class="menu" @click="showItemContent(selectedRow)">查看内容</div>
             <div class="menu" @click="showItemProperty(selectedRow)">查看属性</div>
             <div class="menu" @click="addToShoppingCar([selectedRow])">加入购物车</div>
+            <div class="menu" @click="upgrade(selectedRow)">升版</div>
         </div>
        
       <el-pagination
@@ -278,6 +279,33 @@ export default {
       //console.log(href);
       window.open(href.href, "_blank");
     },
+    upgrade(item){
+            let _self = this;
+
+            // console.log('pagesize:', _self.pageSize);
+            axios
+                .post("/dc/upgradeDocument", item.ID)
+                .then(function(response) {
+                  if(response.data.code=='1'){
+                    _self.$emit("upgradeFun", response.data.id);
+                  }else{
+                    _self.$message({
+                      showClose: true,
+                      message: response.data.message,
+                      duration: 2000,
+                      type: "warning"
+                    });
+                  }
+                  
+                     
+                })
+                .catch(function(error) {
+                console.log(error);
+                _self.loading = false;
+                });
+
+           
+        },
     // 保存文档
     saveItem() {
       this.$refs.ShowProperty.saveItem();

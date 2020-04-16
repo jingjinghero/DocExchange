@@ -29,6 +29,26 @@
         >{{$t('application.ok')}}</el-button>
       </div>
     </el-dialog>
+    <el-dialog 
+        :title="dialogName+$t('application.property')"
+        :visible.sync="upgradepropertyVisible"
+        @close="upgradepropertyVisible = false"
+        width="80%"
+        :append-to-body='true'>
+      <DialogProperties
+         ref="upgradeproperties"
+        @onSaved="onSaved"
+        width="100%"
+        v-bind:itemId="newDocId"
+       >
+      
+      </DialogProperties>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="saveUpgradeItem">{{$t('application.save')}}</el-button>
+        <el-button @click="upgradepropertyVisible = false">{{$t('application.cancel')}}</el-button>
+      </div>
+    </el-dialog>
+
     <el-dialog
       :title="dialogName+$t('application.property')"
       :visible.sync="propertyVisible"
@@ -101,6 +121,7 @@
           key="main"
           v-bind:itemDataList="itemDataList"
           v-bind:columnList="gridList"
+          @upgradeFun="afterUpgrade"
           @pagesizechange="pageSizeChange"
           @pagechange="pageChange"
           v-bind:itemCount="itemCount"
@@ -119,6 +140,7 @@
 
 <script type="text/javascript">
 import ShowProperty from "@/components/ShowProperty";
+import DialogProperties from "@/components/DialogProperties";
 import DataGrid from "@/components/DataGrid";
 import DataGridleft from "@/components/DataGrid";
 import AddFile from "@/views/docexchange/AddFile"
@@ -139,10 +161,10 @@ export default {
       itemDataList: [],
       itemDataListFull: [],
       showAddfile:false,
-      
+      newDocId:"",
       selectedTypeName: [],
       printGridName:"",
-      
+      upgradepropertyVisible:false,
       reuseVisible: false,
       uploadFileLoding:false,
       typeName: "卷盒",
@@ -466,6 +488,132 @@ export default {
       }
     },
     // 保存文档
+    saveUpgradeItem() {
+      if (!this.$refs.upgradeproperties.validFormValue()) {
+        return;
+      }
+      let _self = this;
+      var m = new Map();
+      let dataRows = this.$refs.upgradeproperties.dataList;
+      var i;
+      for (i in dataRows) {
+        if (dataRows[i].attrName && dataRows[i].attrName != "") {
+          if (
+            dataRows[i].attrName != "FOLDER_ID" &&
+            dataRows[i].attrName != "ID"
+          ) {
+            m.set(dataRows[i].attrName, dataRows[i].defaultValue);
+          }
+        }
+      }
+      if (_self.$refs.upgradeproperties.myItemId != "") {
+        m.set("ID", _self.$refs.upgradeproperties.myItemId);
+      }
+      // if (_self.$refs.upgradeproperties.myTypeName != "") {
+      //   m.set("TYPE_NAME", _self.$refs.upgradeproperties.myTypeName);
+      //   m.set("folderPath", _self.$refs.upgradeproperties.folderPath);
+      //   m.set("transferId", _self.$refs.upgradeproperties.parentDocId);
+      // }
+      let formdata = new FormData();
+      formdata.append("metaData", JSON.stringify(m));
+
+      if (_self.$refs.upgradeproperties.file != "") {
+        //console.log(_self.file);
+        formdata.append("uploadFile", _self.$refs.upgradeproperties.file.raw);
+      }
+      // console.log(JSON.stringify(m));
+      if (_self.$refs.upgradeproperties.myItemId == "") {
+        _self
+          .axios({
+            headers: {
+              "Content-Type": "multipart/form-data"
+              // x-www-form-urlencoded'
+              //"Content-Type": "application/json;charset=UTF-8"
+            },
+            method: "post",
+            data: formdata,
+            url: "/dc/newInnerDocument"
+          })
+          .then(function(response) {
+            let code = response.data.code;
+            //console.log(JSON.stringify(response));
+            if (code == 1) {
+              // _self.$message("创建成功!");
+              _self.$message({
+                showClose: true,
+                message: _self.$t('message.newSuccess'),
+                duration: 2000,
+                type: "success"
+              });
+              _self.upgradepropertyVisible = false;
+
+              // _self.loadTransferGridData();
+              _self.loadGridData(null);
+            } else {
+              // _self.$message("新建失败!");
+              _self.$message({
+                showClose: true,
+                message: _self.$t('message.newFailured'),
+                duration: 2000,
+                type: "warning"
+              });
+            }
+          })
+          .catch(function(error) {
+            // _self.$message("新建失败!");
+            _self.$message({
+                showClose: true,
+                message: _self.$t('message.newFailured'),
+                duration: 5000,
+                type: "error"
+              });
+            console.log(error);
+          });
+      } else {
+        _self
+          .axios({
+            headers: {
+              "Content-Type": "application/json;charset=UTF-8"
+            },
+            method: "post",
+            data: JSON.stringify(m),
+            url: "/dc/saveDocument"
+          })
+          .then(function(response) {
+            let code = response.data.code;
+            //console.log(JSON.stringify(response));
+            if (code == 1) {
+              // _self.$emit("onSaved", "update");
+              _self.$message({
+                showClose: true,
+                message: _self.$t('message.newSuccess'),
+                duration: 2000,
+                type: "success"
+              });
+              _self.upgradepropertyVisible = false;
+            } else {
+              // _self.$message("保存失败!");
+              _self.$message({
+                showClose: true,
+                message: _self.$t('message.saveFailured'),
+                duration: 5000,
+                type: "error"
+              });
+            }
+          })
+          .catch(function(error) {
+            // _self.$message("保存失败!");
+            _self.$message({
+                showClose: true,
+                message:  _self.$t('message.saveFailured'),
+                duration: 5000,
+                type: "error"
+              });
+            console.log(error);
+          });
+      }
+    },
+    // 保存文档
     saveItem() {
       if (!this.$refs.ShowProperty.validFormValue()) {
         return;
@@ -700,7 +848,10 @@ export default {
           ? " ASC"
           : " DESC";
     },
-    
+    afterUpgrade(docId){
+      this.newDocId=docId;
+      this.upgradepropertyVisible=true;
+    },
     pageSizeChange(val) {
       this.pageSize = val;
       localStorage.setItem("docPageSize", val);
@@ -982,6 +1133,7 @@ export default {
     
     DataGrid: DataGrid,
     AddFile:AddFile,
+    DialogProperties:DialogProperties
     
   }
 };
