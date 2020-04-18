@@ -169,7 +169,7 @@ export default {
     clickRouter(pathVal){
     let _self = this;
     if(pathVal.substr(0,4)=='http'){
-      window.open(pathVal,'_blank')
+      window.open(pathVal+"?token="+sessionStorage.getItem('access-token'),'_blank')
     }else{
       _self.$router.push({ 
         path: pathVal,
