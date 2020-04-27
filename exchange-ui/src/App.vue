@@ -1,10 +1,13 @@
 <template>
   <div id="app">
+    <transition name="rotate-fall">
     <router-view></router-view>
+    </transition>
   </div>
 </template>
 
 <script>
+import 'vue-transition.css'
 export default {
   name: "app"
 };
@@ -37,12 +40,5 @@ export default {
     font-weight:bold;
     color: #000000 !important;
 }
-.el-menu-item.is-active {
-  color: #000000 !important;
-  font-weight:bold;
-  background-color: #92c6fd !important;
-}
-.router-link-active {
-  color: #000000 !important;
-}
+
 </style>

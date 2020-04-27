@@ -19,10 +19,10 @@
     </el-dialog>
     <el-container>
       <el-header>
-        <el-breadcrumb separator="/" class="navbar">
+        <!-- <el-breadcrumb separator="/" class="navbar">
           <el-breadcrumb-item>系统管理</el-breadcrumb-item>
           <el-breadcrumb-item>组件管理</el-breadcrumb-item>
-        </el-breadcrumb>
+        </el-breadcrumb> -->
         <el-row class="topbar">
           <el-col :span="4">
             <el-input
@@ -218,7 +218,10 @@ a {
 }
 .el-header {
   background-color: #e8eaeb;
-  height: 68px !important;
+  height: 42px !important;
+}
+.el-main{
+  padding:5px;
 }
 .el-row {
   padding-bottom: 10px;

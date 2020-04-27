@@ -3,6 +3,7 @@ const path = require('path')
 const utils = require('./utils')
 const config = require('../config')
 const vueLoaderConfig = require('./vue-loader.conf')
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
 function resolve (dir) {
   return path.join(__dirname, '..', dir)
@@ -30,13 +31,26 @@ module.exports = {
       '@': resolve('src'),
     }
   },
+  plugins: [
+    new VueLoaderPlugin()
+  ],
   module: {
     rules: [
       {
         test: /\.vue$/,
         loader: 'vue-loader',
-        options: vueLoaderConfig
+        // options: vueLoaderConfig
+        options: {
+          loaders: {
+           'scss': 'vue-style-loader!css-loader!sass-loader',
+           'sass': 'vue-style-loader!css-loader!sass-loader?indentedSyntax'
+         }
+        }
       },
+      // {
+      //   test: /\.scss$/,
+      //   use: ['style-loader', 'css-loader', 'sass-loader']
+      // },
       {
         test: /\.js$/,
         loader: 'babel-loader',
@@ -44,10 +58,19 @@ module.exports = {
       },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+        exclude: [resolve('src/icons')],
         loader: 'url-loader',
         options: {
           limit: 10000,
           name: utils.assetsPath('img/[name].[hash:7].[ext]')
+        }
+      },
+      {
+        test: /\.svg$/,
+        loader: 'svg-sprite-loader',
+        include: [resolve('src/icons')],
+        options: {
+          symbolId: 'icon-[name]'
         }
       },
       {

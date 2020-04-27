@@ -126,15 +126,16 @@
     "show":"Show",
     "fileBox":"FileBox",
     "warehousing":"Warehousing",
-    "addToShoppingCart":"Add To ShoppingCart",
-    "removeFromTransfer":"Remove From Transfer",
-    "addToTransfer":"Add To Transfer",
-    "createFileToTransfer":"New File",
-    "fileType":"File Type",
-    "selectFileType":"Please choose the type of files",
-    "Required":"required"
+    "theme": "Theme"
 },
-"menu": {
+"skin": {
+    "Blue": "Blue",
+    "Green": "Green",
+    "Red": "Red",
+    "Purple": "Purple",
+    "Default": "Default"
+},
+"route": {
     "home":"Home",
     "searchCenter":"SearchCenter",
     "taskCenter":"TaskCenter",
@@ -193,13 +194,7 @@
     "cannotChangePassword":"User password cannot be changed.",
     "warehousingSuccess":"Warehousing is successful",
     "warehousingFail":"Warehousing is failed",
-    "pleaseSelectOneTransfer":"Please select a transfer",
-    "selectOneOrMoreData":"Please choose one or more datas",
-    "addSuccess":"Add Success",
-    "addFaild":"Add Faild",
-    "selectOneOrMoreDeleteData":"Please select one or more data to delete",
-    "Print":" Print ",
-    "add":" Add "
+    "pleaseSelectOneTransfer":"Please select a transfer"
 },
 "field": {
     "indexNumber":"S/N",

@@ -23,11 +23,6 @@
                     </template>
                   </el-submenu>
                 </template>
-                <template v-else-if="urlIsExt(item.url)">
-                  <el-menu-item :index="item.id+''" :key="item.id+'_e'" @click="clickRouter(item.url)">
-                    {{item.label}}
-                  </el-menu-item>
-                </template>
                 <template v-else>
                   <el-menu-item :index="item.id+''" :key="item.id+'_e'" @click="clickRouter(item.url)">
                     <router-link :to="item.url">{{item.label}}</router-link>
@@ -36,7 +31,6 @@
               </template>
             </el-menu>
           </div>
-          
           <div v-if="systemPermission>7" class="container-top-right">
             <el-select v-model="currentLanguage" @change="languageChange" style="width:105px">
               <el-option label="简体中文" value="zh-cn" key="zh-cn"></el-option>
@@ -168,24 +162,11 @@ export default {
     },
     clickRouter(pathVal){
     let _self = this;
-    if(pathVal.substr(0,4)=='http'){
-      window.open(pathVal+"?token="+sessionStorage.getItem('access-token'),'_blank')
-    }else{
-      _self.$router.push({ 
-        path: pathVal,
-      });
-    }
-    
+    _self.$router.push({ 
+      path: pathVal,
+    });
 
   },
-  urlIsExt(url){
-    if(url.indexOf('http')==0){
-      return true;
-    }else{
-      return false;
-    }
-    
-  }
 
   }
 };

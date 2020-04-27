@@ -1,4 +1,6 @@
-export const searchRouter = {
+export const searchRouter = 
+{
+	
 	meta: {
 		requireAuth: true,
 		permit: 1

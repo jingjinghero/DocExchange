@@ -181,8 +181,20 @@
                     <i class="el-icon-menu"></i>
                     <span>工作流管理</span>
                   </template>
-                  <router-link :to="{ path: '/workflow/allWorkflow', query: { showAllWorkflow: 1}}">
+                  <router-link to="/managercenter/activitymanager">
                     <el-menu-item index="501">
+                      <i class="el-icon-s-order"></i>
+                      <span slot="title">流程配置</span>
+                    </el-menu-item>
+                  </router-link>
+                  <router-link to="/managercenter/jobmanager">
+                    <el-menu-item index="502">
+                      <i class="el-icon-s-order"></i>
+                      <span slot="title">Job管理</span>
+                    </el-menu-item>
+                  </router-link>
+                  <router-link :to="{ path: '/workflow/allWorkflow', query: { showAllWorkflow: 1}}">
+                    <el-menu-item index="503">
                       <i class="el-icon-ecm-round_pay"></i>
                       <span slot="title">流程查看</span>
                     </el-menu-item>
