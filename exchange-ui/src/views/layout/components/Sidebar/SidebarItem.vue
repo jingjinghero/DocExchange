@@ -15,6 +15,12 @@
           </template>
         </el-submenu>
       </template>
+      <template v-else-if="urlIsExt(item.url)">
+        <el-menu-item :index="item.id+''" :key="item.id+'_e'" @click="clickRouter(item.url)">
+          <svg-icon icon-class="work-flow"></svg-icon>
+          {{item.label}}
+        </el-menu-item>
+      </template>
       <template v-else>
         <router-link :to="item.url">
           <el-menu-item :index="item.url" :key="item.id+'_e'" :class="{'submenu-title-noDropdown':!isNest}">
@@ -59,6 +65,26 @@ export default {
       }
       return false;
     },
+     urlIsExt(url){
+      if(url.indexOf('http')==0){
+        return true;
+      }else{
+        return false;
+      }
+      
+    },
+    clickRouter(pathVal){
+    let _self = this;
+    if(pathVal.substr(0,4)=='http'){
+      window.open(pathVal+"?token="+sessionStorage.getItem('access-token'),'_blank')
+    }else{
+      _self.$router.push({ 
+        path: pathVal,
+      });
+    }
+    
+
+  },
     loadMenu() {
       let _self = this;
       var m = new Map();
