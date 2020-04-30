@@ -10,6 +10,7 @@ import './plugins/formatter.js'
 import echarts from 'echarts'
 import addToShoppingCar from './plugins/shoppingcar'
 
+
 import ImgViewer from 'v-viewer'
 import 'viewerjs/dist/viewer.css'
 import Video from 'video.js'
@@ -31,6 +32,7 @@ Vue.component('split-pane', splitPane);
 Vue.prototype.$video = Video
 Vue.use(ImgViewer)
 Vue.prototype.addToShoppingCar=addToShoppingCar
+
 Vue.config.productionTip = false
 Vue.prototype.getLang = function (){
   let lang = localStorage.getItem("localeLanguage") || "zh-cn"

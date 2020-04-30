@@ -37,3 +37,4 @@ function addToShoppingCar(selectedItemList){
       }
 }
 export default addToShoppingCar
+
