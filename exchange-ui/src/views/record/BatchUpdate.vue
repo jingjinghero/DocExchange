@@ -2,8 +2,8 @@
   <div>
     <div class="navbar">
       <el-breadcrumb>
-        <el-breadcrumb-item>{{$t('menu.fileManage')}}</el-breadcrumb-item>
-        <el-breadcrumb-item>{{$t('menu.batchUpdate')}}</el-breadcrumb-item>
+        <el-breadcrumb-item>{{$t('route.fileManage')}}</el-breadcrumb-item>
+        <el-breadcrumb-item>{{$t('route.BatchUpdate')}}</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <div>
