@@ -3,7 +3,8 @@ export const searchRouter =
 	
 	meta: {
 		requireAuth: true,
-		permit: 1
+		permit: 1,
+		title:'searchCenter'
 	},
 	path: '/searchcenter',
 	component: () => import('@/views/SearchCenter.vue'),
@@ -12,7 +13,8 @@ export const searchRouter =
 		{
 			meta: {
 				requireAuth: true,
-				permit: 1
+				permit: 1,
+				title:'fullTextSearch'
 			},
 			path: '/search/fulltextsearch',
 			name: '全文搜索',
@@ -21,7 +23,8 @@ export const searchRouter =
 		{
 			meta: {
 				requireAuth: true,
-				permit: 1
+				permit: 1,
+				title:'cardSearch'
 			},
 			path: '/search/cardsearch',
 			name: '卡片搜索',
@@ -30,7 +33,8 @@ export const searchRouter =
 		{
 			meta: {
 				requireAuth: true,
-				permit: 1
+				permit: 1,
+				title:'advSearch'
 			},
 			path: '/search/advsearch',
 			name: '高级搜索',
@@ -39,7 +43,8 @@ export const searchRouter =
 		{
 			meta: {
 				requireAuth: true,
-				permit: 1
+				permit: 1,
+				title:'mySearch'
 			},
 			path: '/search/mysearch',
 			name: '我的搜索',
