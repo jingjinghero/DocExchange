@@ -53,7 +53,7 @@ public class DocTransfer extends ControllerAbstract{
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value="/dc/removeFromArchive", method = RequestMethod.POST)
+	@RequestMapping(value="/dcexchange/removeFromArchive", method = RequestMethod.POST)
 	public Map<String, Object> removeFromArchive(@RequestBody String param) {
 
 		Map<String, Object> args = JSONUtils.stringToMap(param);
@@ -83,7 +83,7 @@ public class DocTransfer extends ControllerAbstract{
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/dc/addReuseToVolume", method = RequestMethod.POST)
+	@RequestMapping(value = "/dcexchange/addReuseToVolume", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String, Object> addReuseToVolume(@RequestBody String argStr) throws Exception {
 		Map<String, Object> args = JSONUtils.stringToMap(argStr);
@@ -116,7 +116,7 @@ public class DocTransfer extends ControllerAbstract{
 	 * @param argStr
 	 * @return
 	 */
-	@RequestMapping(value = "/dc/getInnerFolderDocuments", method = RequestMethod.POST) // PostMapping("/dc/getDocumentCount")
+	@RequestMapping(value = "/dcexchange/getInnerFolderDocuments", method = RequestMethod.POST) // PostMapping("/dc/getDocumentCount")
 	@ResponseBody
 	public Map<String, Object> getDocuments(@RequestBody String argStr) {
 		Map<String, Object> mp = new HashMap<String, Object>();
@@ -147,7 +147,7 @@ public class DocTransfer extends ControllerAbstract{
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/dc/delDocumentAndRelation", method = RequestMethod.POST) // PostMapping("/dc/getDocumentCount")
+	@RequestMapping(value = "/dcexchange/delDocumentAndRelation", method = RequestMethod.POST) // PostMapping("/dc/getDocumentCount")
 	@ResponseBody
 	public Map<String, Object> delDocument(@RequestBody String argStr) throws Exception {
 		List<String> list = JSONUtils.stringToArray(argStr);
@@ -179,72 +179,72 @@ public class DocTransfer extends ControllerAbstract{
 		mp.put("code", ActionContext.SUCESS);
 		return mp;
 	}
-	/**
-	 * 通过配置获取文件夹
-	 * @param param
-	 * @return
-	 */
-	@RequestMapping(value="/folder/getArchiveFolderByConfige", method = RequestMethod.POST)
-	@ResponseBody	
-	public Map<String, Object> getFolderByConfige(@RequestBody String param) {
-		Map<String, Object> mp = new HashMap<String, Object>();
-		try {
-			String id ="";
-			try {
-				id= CacheManagerOper.getEcmParameters().get(param).getValue();
-			}catch (NullPointerException e) {
-				// TODO: handle exception
-				id=param;
-			}
-			List<EcmFolder> folders=folderService.getFoldersByParentId(getToken(), id);
-			List<EcmFolder> resultData=new ArrayList<>();
-			for(EcmFolder f:folders) {
-				EcmGridView gv = CacheManagerOper.getEcmGridViews().get(f.getGridView());
-				String gvCondition=gv.getCondition();
-				String sql="select count(*) as num from ecm_document where "+gvCondition+" and FOLDER_ID in( " + 
-						"select id from ecm_folder where FOLDER_PATH like '"+f.getFolderPath()+"%' " + 
-						")";
-				List<Map<String,Object>> numberData= documentService.getMapList(getToken(), sql);
-				if(numberData!=null&&numberData.size()>0&&numberData.get(0)!=null) {
-					String name=f.getName();
-					f.setName(name+"("+numberData.get(0).get("num").toString()+")");
-					
-				}
-				resultData.add(f);
-			}
-			mp.put("code", ActionContext.SUCESS);
-			mp.put("data", resultData);
-		}
-		catch(Exception ex) {
-			ex.printStackTrace();
-			mp.put("code", ActionContext.FAILURE);
-			mp.put("message", ex.getMessage());
-		}
-		return mp;
-	}
+//	/**
+//	 * 通过配置获取文件夹
+//	 * @param param
+//	 * @return
+//	 */
+//	@RequestMapping(value="/folder/getArchiveFolderByConfige", method = RequestMethod.POST)
+//	@ResponseBody	
+//	public Map<String, Object> getFolderByConfige(@RequestBody String param) {
+//		Map<String, Object> mp = new HashMap<String, Object>();
+//		try {
+//			String id ="";
+//			try {
+//				id= CacheManagerOper.getEcmParameters().get(param).getValue();
+//			}catch (NullPointerException e) {
+//				// TODO: handle exception
+//				id=param;
+//			}
+//			List<EcmFolder> folders=folderService.getFoldersByParentId(getToken(), id);
+//			List<EcmFolder> resultData=new ArrayList<>();
+//			for(EcmFolder f:folders) {
+//				EcmGridView gv = CacheManagerOper.getEcmGridViews().get(f.getGridView());
+//				String gvCondition=gv.getCondition();
+//				String sql="select count(*) as num from ecm_document where "+gvCondition+" and FOLDER_ID in( " + 
+//						"select id from ecm_folder where FOLDER_PATH like '"+f.getFolderPath()+"%' " + 
+//						")";
+//				List<Map<String,Object>> numberData= documentService.getMapList(getToken(), sql);
+//				if(numberData!=null&&numberData.size()>0&&numberData.get(0)!=null) {
+//					String name=f.getName();
+//					f.setName(name+"("+numberData.get(0).get("num").toString()+")");
+//					
+//				}
+//				resultData.add(f);
+//			}
+//			mp.put("code", ActionContext.SUCESS);
+//			mp.put("data", resultData);
+//		}
+//		catch(Exception ex) {
+//			ex.printStackTrace();
+//			mp.put("code", ActionContext.FAILURE);
+//			mp.put("message", ex.getMessage());
+//		}
+//		return mp;
+//	}
 	/**
 	 * 获取配置参数
 	 * @param argStr
 	 * @return
 	 */
-	@RequestMapping(value = "/dc/getParameters", method = RequestMethod.POST) // PostMapping("/dc/getDocumentCount")
-	@ResponseBody
-	public Map<String, Object> getParameters(@RequestBody String argStr) {
-		String[] keys=argStr.split(",");
-		Map<String,Object> dataMap=new HashMap<String,Object>();
-		for(String key : keys) {
-			String params = CacheManagerOper.getEcmParameters().get(key).getValue();
-			if(params!=null) {
-				String[] vals=params.split(",");
-				dataMap.put(key, vals);
-			}
-		}
-		Map<String, Object> mp = new HashMap<String, Object>();
-		mp.put("data", dataMap);
-		mp.put("code", ActionContext.SUCESS);
-		
-		return mp;
-	}
+//	@RequestMapping(value = "/dc/getParameters", method = RequestMethod.POST) // PostMapping("/dc/getDocumentCount")
+//	@ResponseBody
+//	public Map<String, Object> getParameters(@RequestBody String argStr) {
+//		String[] keys=argStr.split(",");
+//		Map<String,Object> dataMap=new HashMap<String,Object>();
+//		for(String key : keys) {
+//			String params = CacheManagerOper.getEcmParameters().get(key).getValue();
+//			if(params!=null) {
+//				String[] vals=params.split(",");
+//				dataMap.put(key, vals);
+//			}
+//		}
+//		Map<String, Object> mp = new HashMap<String, Object>();
+//		mp.put("data", dataMap);
+//		mp.put("code", ActionContext.SUCESS);
+//		
+//		return mp;
+//	}
 	
 	/**
 	 * 根据类型名称获取模板
@@ -282,38 +282,38 @@ public class DocTransfer extends ControllerAbstract{
 	 * 通过id查找relation中childId对应的document
 	 * @return
 	 */
-	@RequestMapping(value = "/dc/getDocuByRelationParentId", method = RequestMethod.POST)
-	@ResponseBody
-	public Map<String,Object> getDocumentByRelationParentId(@RequestBody String argStr) {
-		Map<String, Object> args = JSONUtils.stringToMap(argStr);
-		int pageSize = Integer.parseInt(args.get("pageSize").toString());
-		int pageIndex = Integer.parseInt(args.get("pageIndex").toString());
-		Pager pager = new Pager();
-		pager.setPageIndex(pageIndex);
-		pager.setPageSize(pageSize);
-
-		Map<String, Object> mp = new HashMap<String, Object>();
-		try {
-			String conditionWhere="";
-			if(args.get("condition")!=null) {
-				conditionWhere=args.get("condition").toString();
-			}
-			String sql = "select * from (select b.*,a.id as RELATION_ID,a.NAME as RELATION_NAME,a.PARENT_ID,a.CHILD_ID,a.ORDER_INDEX"
-					+ " from ecm_relation a, ecm_document b where  a.CHILD_ID=b.ID "
-					+ " and a.PARENT_ID='"+args.get("id").toString()+"' "+conditionWhere+") t order by ORDER_INDEX,CREATION_DATE";
-			List<Map<String, Object>>  list = documentService.getMapList(getToken(), sql,pager);
-			mp.put("data", list);
-			mp.put("pager", pager);
-			mp.put("code", ActionContext.SUCESS);
-			
-		}
-		catch(Exception ex) {
-			mp.put("code", ActionContext.FAILURE);
-			mp.put("message", ex.getMessage());
-		}
-		return mp;
-	
-	}
+//	@RequestMapping(value = "/dc/getDocuByRelationParentId", method = RequestMethod.POST)
+//	@ResponseBody
+//	public Map<String,Object> getDocumentByRelationParentId(@RequestBody String argStr) {
+//		Map<String, Object> args = JSONUtils.stringToMap(argStr);
+//		int pageSize = Integer.parseInt(args.get("pageSize").toString());
+//		int pageIndex = Integer.parseInt(args.get("pageIndex").toString());
+//		Pager pager = new Pager();
+//		pager.setPageIndex(pageIndex);
+//		pager.setPageSize(pageSize);
+//
+//		Map<String, Object> mp = new HashMap<String, Object>();
+//		try {
+//			String conditionWhere="";
+//			if(args.get("condition")!=null) {
+//				conditionWhere=args.get("condition").toString();
+//			}
+//			String sql = "select * from (select b.*,a.id as RELATION_ID,a.NAME as RELATION_NAME,a.PARENT_ID,a.CHILD_ID,a.ORDER_INDEX"
+//					+ " from ecm_relation a, ecm_document b where  a.CHILD_ID=b.ID "
+//					+ " and a.PARENT_ID='"+args.get("id").toString()+"' "+conditionWhere+") t order by ORDER_INDEX,CREATION_DATE";
+//			List<Map<String, Object>>  list = documentService.getMapList(getToken(), sql,pager);
+//			mp.put("data", list);
+//			mp.put("pager", pager);
+//			mp.put("code", ActionContext.SUCESS);
+//			
+//		}
+//		catch(Exception ex) {
+//			mp.put("code", ActionContext.FAILURE);
+//			mp.put("message", ex.getMessage());
+//		}
+//		return mp;
+//	
+//	}
 	
 	/**
 	 * 创建案卷或文件
