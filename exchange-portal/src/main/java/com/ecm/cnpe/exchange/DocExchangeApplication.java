@@ -1,4 +1,4 @@
-package com.zisecm.docexchange;
+package com.ecm.cnpe.exchange;
 
 import javax.sql.DataSource;
 

@@ -1,4 +1,4 @@
-package com.zisecm.docexchange;
+package com.ecm.cnpe.exchange;
 
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
