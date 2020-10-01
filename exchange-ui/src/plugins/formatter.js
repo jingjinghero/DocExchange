@@ -1,18 +1,20 @@
 import Vue from 'vue'
 Vue.prototype.dateFormat = function(val){
-    let datetime = val;
+    var datetime = val;
     //console.log(val);
     if (datetime){
       if(typeof datetime === 'string'){
         //console.log(datetime);
         datetime = datetime.replace('+0000','').trim();
+        datetime = datetime.replace('.0000000','').trim();
         //console.log(datetime);
         var regexp=new RegExp(/(\.\d{3})/g);
         datetime = datetime.replace(regexp,"");
         //console.log(datetime);
         datetime = datetime.replace(/-/g,'/').replace(/T|Z/g,' ');
-       // console.log(datetime);
+        
         datetime = new Date(datetime);
+        // console.log(datetime);
       
       }else if(typeof datetime === 'object'){
         datetime = new Date(datetime);
@@ -34,6 +36,7 @@ Vue.prototype.dateFormat = function(val){
       if(typeof datetime === 'string'){
         //console.log(datetime);
         datetime = datetime.replace('+0000','').trim();
+        datetime = datetime.replace('.0000000','').trim();
         //console.log(datetime);
         var regexp=new RegExp(/(\.\d{3})/g);
         datetime = datetime.replace(regexp,"");

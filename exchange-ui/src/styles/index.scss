@@ -13,10 +13,6 @@ body {
   font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;
 }
 
-label {
-  font-weight: 700;
-}
-
 html {
   height: 100%;
   box-sizing: border-box;
@@ -92,7 +88,7 @@ code {
 }
 
 .app-container {
-  padding: 20px;
+  padding: 2px;
   box-sizing: border-box;
   overflow-y: scroll;
 }
@@ -166,4 +162,20 @@ code {
 
 .el-submenu__title i{
   color: white !important;
+}
+
+.topbar-button{
+  padding-top:7px;
+  padding-bottom:5px;
+  padding-left:10px;
+  float:left;
+  text-align:left;
+}
+
+.topbar-input{
+  padding-top:5px;
+  padding-bottom:5px;
+  padding-left:10px;
+  float:left;
+  text-align:left;
 }

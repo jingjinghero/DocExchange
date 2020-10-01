@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-dialog :title="dialogtitle" :visible.sync="dialogVisible" width="60%">
+    <el-dialog :title="dialogtitle" :visible.sync="dialogVisible" width="70%">
       <el-form :model="form" label-position="right" label-width="100px">
         <el-row>
           <el-col :span="12">
@@ -132,12 +132,39 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
+            <el-form-item label="公司名称" :label-width="formLabelWidth">
+              <el-input
+                :autosize="true"
+                v-model="form.companyName"
+                :disabled="clientPermission<form.clientPermission"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
             <el-form-item label="默认组" :label-width="formLabelWidth">
               <el-input
                 :autosize="true"
                 v-model="form.groupName"
                 :disabled="clientPermission<form.clientPermission"
               ></el-input>
+            </el-form-item>
+          </el-col>
+           <el-col :span="8">
+            <el-form-item label="代理用户" :label-width="formLabelWidth">
+              <el-input
+                :autosize="true"
+                v-model="form.delegateUser"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+           <el-col :span="8">
+            <el-form-item label="代理开始日期" :label-width="formLabelWidth">
+              <el-date-picker v-model="form.delegateStart" type="date" placeholder="选择日期" style="display:block;" value-format="yyyy-MM-dd HH:mm:ss" ></el-date-picker>
+            </el-form-item>
+          </el-col>
+           <el-col :span="8">
+            <el-form-item label="代理结束日期" :label-width="formLabelWidth">
+              <el-date-picker v-model="form.delegateEnd" type="date" placeholder="选择日期" style="display:block;" value-format="yyyy-MM-dd HH:mm:ss" ></el-date-picker>
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -159,7 +186,7 @@
                 :auto-upload="false"
                 :multiple="false"
               >
-                <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+                <el-button slot="trigger" size="small" type="primary">{{$t('application.selectFile')}}</el-button>
               </el-upload>
             </el-form-item>
           </el-col>
@@ -170,7 +197,7 @@
         class="dialog-footer"
         v-if="clientPermission>=form.clientPermission || !isReadOnly"
       >
-        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button @click="dialogVisible = false">{{$t('application.cancel')}}</el-button>
         <el-button type="primary" @click="additem(form)">确 定</el-button>
       </div>
     </el-dialog>
@@ -186,22 +213,18 @@
               :auto-upload="false"
               :multiple="false"
             >
-              <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+              <el-button slot="trigger" size="small" type="primary">{{$t('application.selectFile')}}</el-button>
             </el-upload>
           </el-form-item>
         </el-col>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button @click="dialogVisible = false">{{$t('application.cancel')}}</el-button>
         <el-button type="primary" @click="updateSignImage()">确 定</el-button>
       </div>
     </el-dialog>
     <el-container>
       <el-header>
-        <!-- <el-breadcrumb separator="/" class="navbar">
-          <el-breadcrumb-item>系统管理</el-breadcrumb-item>
-          <el-breadcrumb-item>用户管理</el-breadcrumb-item>
-        </el-breadcrumb> -->
         <el-row class="topbar">
           <el-col :span="4">
             <el-input
@@ -213,7 +236,7 @@
           </el-col>
           <el-col :span="20" style="text-align:left;">
             &nbsp; 
-            <el-button type="primary" plain="true" icon="el-icon-edit" @click="newitem()">新建</el-button>
+            <el-button type="primary" plain="true" icon="el-icon-edit" @click="newitem()">{{$t('application.new')}}</el-button>
           </el-col>
         </el-row>
       </el-header>
@@ -225,7 +248,7 @@
               <span>{{(currentPage-1) * pageSize + scope.$index+1}}</span>
             </template>
           </el-table-column>
-          <el-table-column label="用户名" width="120">
+          <el-table-column label="用户名" width="150">
             <template slot-scope="scope">
               <span>{{scope.row.name}}</span>
             </template>
@@ -282,7 +305,7 @@
                 type="danger"
                 plain
                 icon="el-icon-delete"
-                title="删除"
+                :title="$t('application.delete')"
                 @click="delitem(scope.row)"
               ></el-button>
             </template>
@@ -311,7 +334,7 @@ export default {
       dataListFull: [],
       fileList: [],
       file: "",
-      tableHeight: window.innerHeight - 152,
+      tableHeight: window.innerHeight - 190,
       inputkey: "",
       loading: false,
       dialogVisible: false,
@@ -325,6 +348,7 @@ export default {
       selectedItems: [],
       currentPage: 1,
       clientPermission: 1,
+      systemPermission: 0,
       token: "",
       form: {
         id: "",
@@ -334,8 +358,12 @@ export default {
         email: "",
         phone: "",
         groupName: "",
+        companyName: "",
         password: "",
-        passwordConfirm: ""
+        passwordConfirm: "",
+        delegateUser: "",
+        delegateStart: null,
+        delegateEnd: null
       },
       sysOptions: [
         { label: "无", value: 0 },
@@ -369,14 +397,14 @@ export default {
     if (psize) {
       _self.pageSize = parseInt(psize);
     }
-    var user = sessionStorage.getItem("access-user");
-    if (user) {
-      _self.clientPermission = sessionStorage.getItem(
-        "access-clientPermission"
-      );
-      _self.token = sessionStorage.getItem("access-token");
-    }
-    console.log(_self.clientPermission);
+    if (this.currentUser()) {
+        this.clientPermission = Number(
+          this.currentUser().clientPermission
+        );
+        this.systemPermission = Number(
+          this.currentUser().systemPermission
+        );
+      }
     _self.refreshData();
   },
   methods: {
@@ -492,6 +520,7 @@ export default {
         systemPermissioin: "0",
         clientPermissioin: "1",
         groupName: "",
+        companyName: "",
         isActived: true
       };
       this.fileList = [];
@@ -500,6 +529,7 @@ export default {
     edititem(indata) {
       this.dialogtitle = "编辑用户";
       this.isReadOnly = true;
+      indata.passwordConfirm = '';
       this.form = indata;
       this.form.passwordConfirm = indata.password + "";
       //this.form.passwordConfirm = this.form.password+"";
@@ -568,30 +598,5 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1,
-h2 {
-  font-weight: normal;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-.el-header,
-.el-footer {
-  background-color: #e8eaeb;
-  height: 68px !important;
-}
-.el-main{
-  padding:5px;
-}
-.el-row {
-  padding-bottom: 10px;
-}
+
 </style>

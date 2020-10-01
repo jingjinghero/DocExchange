@@ -29,7 +29,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button @click="dialogVisible = false">{{$t('application.cancel')}}</el-button>
         <el-button type="primary" @click="additem(form)">确 定</el-button>
       </div>
     </el-dialog>
@@ -51,7 +51,7 @@
           </el-form-item>
           <el-form-item>
             &nbsp; 
-            <el-button type="primary" plain icon="el-icon-edit" @click="dialogVisible = true">新建</el-button>
+            <el-button type="primary" plain icon="el-icon-edit" @click="dialogVisible = true">{{$t('application.new')}}</el-button>
           </el-form-item>
         </el-form>
       </el-header>
@@ -94,8 +94,9 @@
               <el-input v-model="scope.row.status"></el-input>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="180">
+          <el-table-column label="操作" width="210">
             <template slot-scope="scope">
+              <router-link :to="{path:'/managercenter/defattrmanager',query:{parentid:scope.row.id,name:scope.row.name}}"><el-button :plain="true" type="info" size="small" icon="edit">查看</el-button></router-link>
               <el-button
                 :plain="true"
                 type="primary"
@@ -109,7 +110,7 @@
                 size="small"
                 icon="delete"
                 @click="delitem(scope.row)"
-              >删除</el-button>
+              >{{$t('application.delete')}}</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -134,7 +135,7 @@ export default {
       inputkey: "",
       loading: false,
       dialogVisible: false,
-      tableHeight: window.innerHeight - 115,
+      tableHeight: window.innerHeight - 135,
       form: {
         name: "",
         description: "",

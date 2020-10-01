@@ -34,7 +34,8 @@ export const dcRouter = [
 		{
 			meta: {
 				requireAuth: true,
-				permit: 1
+				permit: 1,
+				title:'folderViewer'
 			},
 			path: '/dc/folderviewer',
 			component: () => import('@/views/dc/FolderViewer.vue'),
@@ -43,7 +44,8 @@ export const dcRouter = [
 		{
 			meta: {
 				requireAuth: true,
-				permit: 1
+				permit: 1,
+				title:'folderViewer'
 			},
 			path: '/dc/folder',
 			component: () => import('@/views/dc/FolderClassification.vue'),
@@ -88,10 +90,21 @@ export const dcRouter = [
 		{
 			meta: {
 				requireAuth: true,
-				permit: 1
+				permit: 1,
+				title:'recycleBin'
 			},
 			path: '/dc/recyclebin',
 			component: () => import('@/views/dc/RecycleBin.vue'),
 			name: '回收站'
+		},
+		{
+			meta: {
+				requireAuth: true,
+				permit: 1,
+				title:'folderViewer'
+			},
+			path: '/dc/JTViewer',
+			component: () => import('@/views/dc/JTViewer.vue'),
+			name: 'JT查看'
 		}
 	]

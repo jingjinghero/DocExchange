@@ -1,10 +1,10 @@
 <template>
   <div>
     
-    <el-dialog width="80%" title="列表校验" :visible.sync="checkVisible">
-      <GridViewItemCheck ref="GridViewItemCheck" width="560" :parentgridid="parentid"></GridViewItemCheck>
+    <el-dialog width="90%" title="列表校验" :visible.sync="checkVisible">
+      <GridViewItemCheck ref="GridViewItemCheck" width="560" :gridViewName="gridViewName"></GridViewItemCheck>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="checkVisible = false">取 消</el-button>
+        <el-button @click="checkVisible = false">{{$t('application.cancel')}}</el-button>
       </div>
     </el-dialog>
     <el-dialog title="添加" :visible.sync="dialogVisible" :append-to-body="true" width="80%">
@@ -54,8 +54,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="saveItem(form)">确 定</el-button>
+        <el-button @click="dialogVisible = false">{{$t('application.cancel')}}</el-button>
+        <el-button type="primary" @click="saveItem(form,false)">确 定</el-button>
       </div>
     </el-dialog>
     <el-container>
@@ -65,7 +65,7 @@
           <el-breadcrumb-item>列表项管理</el-breadcrumb-item>
         </el-breadcrumb> -->
         <el-row class="topbar">
-          <el-col :span="4">列表名：{{typename}}</el-col>
+          <el-col :span="4">列表名：{{gridViewName}}</el-col>
         
           <el-col :span="4">
             <el-input
@@ -82,7 +82,7 @@
               icon="el-icon-edit"
               plain
               @click="newItem"
-            >新建</el-button>
+            >{{$t('application.new')}}</el-button>
             <el-button type="primary" plain icon="el-icon-check" @click="startcheck()">验证</el-button>
           </el-col>
         </el-row>
@@ -147,7 +147,7 @@
                 type="primary"
                 size="small"
                 icon="edit"
-                @click="saveItem(scope.row)"
+                @click="saveItem(scope.row,true)"
               >保存</el-button>
               <el-button
                 :plain="true"
@@ -155,7 +155,7 @@
                 size="small"
                 icon="delete"
                 @click="delItem(scope.row)"
-              >删除</el-button>
+              >{{$t('application.delete')}}</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -184,7 +184,7 @@ export default {
       loading: false,
       dialogVisible: false,
       checkVisible: false,
-      typename: "",
+      gridViewName: "",
       parentid: "",
       idEdit: false,
       tableHeight: window.innerHeight - 115,
@@ -212,7 +212,7 @@ export default {
     let _self = this;
     _self.loading = true;
     var pid = _self.$route.query.parentid;
-    _self.typename = _self.$route.query.name;
+    _self.gridViewName = _self.$route.query.name;
     if (pid) {
       _self.parentid = pid;
       _self.form.parentId = pid;
@@ -237,7 +237,10 @@ export default {
     startcheck() {
       let _self = this;
       _self.checkVisible = true;
-      _self.$refs.GridViewItemCheck.loaddata();
+      if(_self.$refs.GridViewItemCheck){
+        _self.$refs.GridViewItemCheck.loadData();
+      }
+      
     },
     refreshData() {
       let _self = this;
@@ -290,8 +293,8 @@ export default {
       this.form.value = "";
       this.dialogVisible = true;
     },
-    saveItem(indata){
-      if(this.idEdit){
+    saveItem(indata,isEdit){
+      if(this.idEdit || isEdit){
         this.updateItem(indata);
       }else{
         this.addItem(indata);
@@ -330,9 +333,7 @@ export default {
     },
     search() {
       let _self = this;
-      let tab = _self.dataListFull;
       _self.dataList = [];
-      var i;
       if (_self.inputkey != "" || _self.parentid != "") {
         _self.dataList = _self.dataListFull.filter(function(item) {
           return (

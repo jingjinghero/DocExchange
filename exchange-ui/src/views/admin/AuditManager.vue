@@ -20,14 +20,14 @@
             <el-date-picker
               v-model="startDate"
               type="date"
-              placeholder="选择开始日期">
+              :placeholder="$t('application.pleaseSelect')+$t('application.startDate')">
             </el-date-picker>
           </el-col>
           <el-col :span="4">
             <el-date-picker
               v-model="endDate"
               type="date"
-              placeholder="选择结束日期">
+              :placeholder="$t('application.pleaseSelect')+$t('application.endDate')">
             </el-date-picker>
           </el-col>
           <el-col :span="4">
@@ -44,7 +44,7 @@
               icon="el-icon-search"
               plain
               @click="search"
-            >查询</el-button>
+            >{{$t('application.SearchData')}}</el-button>
           </el-col>
         </el-row>
       </el-header>
@@ -77,7 +77,7 @@
                 size="small"
                 icon="delete"
                 @click="delItem(scope.row)"
-              >删除</el-button>
+              >{{$t('application.delete')}}</el-button>
             </template>
           </el-table-column>
           -->

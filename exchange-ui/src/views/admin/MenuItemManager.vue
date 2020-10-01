@@ -38,7 +38,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="角色" :label-width="formLabelWidth">
-              <el-input v-model="form.roleName" auto-complete="off"></el-input>
+              <RoleSelectInput v-model="form.roleName" v-bind:inputValue="form.roleName" v-bind:isRepeat="true" ></RoleSelectInput>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -70,7 +70,7 @@
         </el-form>
       </el-row>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button @click="dialogVisible = false">{{$t('application.cancel')}}</el-button>
         <el-button type="primary" @click="additem(form)">确 定</el-button>
       </div>
     </el-dialog>
@@ -92,7 +92,7 @@
       </el-col>
       <el-col :span="3">
         &nbsp;
-        <el-button type="primary" plain icon="el-icon-edit"  @click="newItem()">新建</el-button>
+        <el-button type="primary" plain icon="el-icon-edit"  @click="newItem()">{{$t('application.new')}}</el-button>
       </el-col>
     </el-row>
     <el-table :data="dataList" border :height="tableHeight" v-loading="loading" style="width: 100%">
@@ -118,7 +118,7 @@
             size="small"
             icon="delete"
             @click="del(scope.row)"
-          >删除</el-button>
+          >{{$t('application.delete')}}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -131,13 +131,15 @@
 // });
 import ComponentSelector from "@/components/controls/ComponentSelector";
 import LangSelector from "@/components/controls/LangSelector";
+import RoleSelectInput from '@/components/controls/RoleSelectInput'
 
 export default {
   name: "MenuItemManager",
   permit: 9,
   components: {
     ComponentSelector: ComponentSelector,
-    LangSelector: LangSelector
+    LangSelector: LangSelector,
+    RoleSelectInput: RoleSelectInput
   },
   data() {
     return {
@@ -148,7 +150,7 @@ export default {
       loading: false,
       dialogVisible: false,
       isEdit: false,
-      tableHeight: window.innerHeight - 115,
+      tableHeight: window.innerHeight - 135,
       form: {
         id:"",
         name: "",

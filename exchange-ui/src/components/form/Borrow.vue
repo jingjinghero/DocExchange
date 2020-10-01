@@ -299,7 +299,7 @@
     </el-form>
 
     <div slot="footer" class="dialog-footer" style="text-align:center" v-if="istask==false">
-      <el-button ref="borrowCancel" type="primary" @click="cancel()">取 消</el-button>
+      <el-button ref="borrowCancel" type="primary" @click="cancel()">{{$t('application.cancel')}}</el-button>
       <el-button ref="borrowStartwf" @click="startWorkflow(borrowForm)">启动流程</el-button>
     </div>
   </div>
@@ -378,7 +378,7 @@ export default {
       formEditPermision: 0,
       processDefinitionId: "",
       activityName: "",
-     vshowShopingCart: false,
+      vshowShopingCart: false,
       showOrCloseShopingCartLabel: "从借阅单添加",
       expireTimeOption: this.dateCheck(),
       defaultProps: {
@@ -783,7 +783,7 @@ export default {
             if (typeof allTableData[i].C_ARCHIVE_UNIT == "undefined") {
               _self.$message({
                 showClose: true,
-                message: "所借阅档案，归档单位为空，不能外借!",
+                message: _self.$t('message.EmptyPlaceOnFile'),
                 duration: 5000,
                 type: "warning"
               });
@@ -794,7 +794,7 @@ export default {
             if (C_ARCHIVE_UNIT != allTableData[i].C_ARCHIVE_UNIT) {
               _self.$message({
                 showClose: true,
-                message: "所借阅档案，归档单位只能是同一个!",
+                message: _self.$t('message.SameFiledUnit'),
                 duration: 5000,
                 type: "warning"
               });
@@ -805,7 +805,7 @@ export default {
       } else {
         _self.$message({
           showClose: true,
-          message: "请选择需要借阅的档案",
+          message:_self.$t('message.PleaseSelectOneBorrow'),
           duration: 5000,
           type: "warning"
         });

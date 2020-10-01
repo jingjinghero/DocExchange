@@ -3,7 +3,7 @@
     <div class="navbar">
       <el-breadcrumb>
         <el-breadcrumb-item>{{$t('route.fileManage')}}</el-breadcrumb-item>
-        <el-breadcrumb-item>{{$t('route.BatchUpdate')}}</el-breadcrumb-item>
+        <el-breadcrumb-item>{{$t('route.batchUpdate')}}</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <div>
@@ -18,7 +18,7 @@
         </el-row>
         <el-row>
           <el-col :span="4">
-            <el-form-item label="Excel文件" style="float: left;">
+            <el-form-item :label="'Excel'+$t('message.file')" style="float: left;">
               <el-upload
                 :limit="1"
                 :file-list="fileList"
@@ -27,11 +27,11 @@
                 :auto-upload="false"
                 :multiple="false"
               >
-                <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+                <el-button slot="trigger" size="small" type="primary">{{$t('application.selectFile')}}</el-button>
               </el-upload>
             </el-form-item>
           </el-col>
-          <el-col :span="4">
+          <el-col :span="4" style="float:right;">
             <el-button type="primary" plain  icon="el-icon-upload2" @click="batchUpdate()">开始更新</el-button>
           </el-col>
         </el-row>
@@ -62,7 +62,7 @@ export default {
     batchUpdate(){
       let _self = this;
       if (_self.fileList == null || _self.fileList.length == 0||_self.fileList[0].raw==null) {
-        _self.$message("请选择导入Excel文件!");
+         _self.$message(_self.$t('application.PleaseSelect'));
         return;
       }
       let formdata = new FormData();

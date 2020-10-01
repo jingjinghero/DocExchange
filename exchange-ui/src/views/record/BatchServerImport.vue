@@ -2,7 +2,7 @@
   <div>
     <div class="navbar">
       <el-breadcrumb>
-        <el-breadcrumb-item>{{$t('menu.fileManage')}}</el-breadcrumb-item>
+        <el-breadcrumb-item>{{$t('route.fileManage')}}</el-breadcrumb-item>
         <el-breadcrumb-item>服务端批量导入</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
@@ -28,7 +28,7 @@
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-button type="primary" plain icon="el-icon-upload2" @click="batchImport()">开始导入</el-button>
+            <el-button type="primary" plain icon="el-icon-upload2" @click="batchImport()">{{$t('application.start')+$t('application.Import')}}</el-button>
           </el-col>
         </el-row>
       </el-form>
@@ -58,10 +58,10 @@ export default {
         .then(function(response) {
           _self.importMessage = response.data.data;
           _self.loading = false;
-          _self.$message("导入成功!");
+          _self.$message(_self.$t('application.Import')+_self.$t('message.success'));
         })
         .catch(function(error) {
-          _self.$message("导入失败!");
+          _self.$message(_self.$t('application.importFailed'));
           console.log(error);
         });
     }

@@ -9,6 +9,7 @@ import { userRouter } from "@/router/user.js";
 import { workflowRouter } from "@/router/workflow.js";
 import { testRouter } from "@/router/test.js";
 import { docexchange } from "@/router/docexchange.js";
+import {cnpeRouter} from "@/router/cnpe.js"
 import store from "@/store";
 import Layout from "../views/layout/Layout";
 
@@ -37,15 +38,27 @@ const router = new Router({
           component: () => import("@/views/HomeContent.vue"),
           name: "首页内容"
         },
+        
         ...docexchange,
+        ...cnpeRouter,
         searchRouter,
         ...dcRouter,
         ...recordRouter,
         workflowRouter,
         reportRouter,
         userRouter,
+        // docexchange,
         ...testRouter,
         ...adminRouter,
+        {
+          meta: {
+            requireAuth: true,
+            title: 'mainContainer'
+          },
+          path: "/container",
+          name: "内容容器",
+          component: () => import("@/views/MainContainer.vue")
+        },
         // 图标组件
         {
           path: '/icons',
@@ -55,7 +68,15 @@ const router = new Router({
         },
       ]
     },
-    ,
+    {
+      meta: {
+        requireAuth: true,
+        title: 'NoPermission'
+      },
+      path: "/NoPermission",
+      component: () => import("@/views/NoPermission.vue"),
+      name: "无权限"
+    },
     {
       meta: {
         requireAuth: true,
@@ -65,11 +86,6 @@ const router = new Router({
       name: "帮助中心",
       component: () =>
         import(/* webpackChunkName: "helpcenter" */ "@/views/HelpCenter.vue")
-    },
-    {
-      path: "/container",
-      name: "内容容器",
-      component: () => import("@/views/MainContainer.vue")
     },
     {
       meta: {
@@ -91,6 +107,16 @@ const router = new Router({
           component: () => import("@/components/form/Borrow.vue")
         }
       ]
+    },
+    {
+      meta: {
+        requireAuth: true,
+        permit: 3
+      },
+      path: "/FeedbackDetail",
+      name: "问题详情",
+      component: () =>
+        import(/* webpackChunkName: "home1" */ "@/views/docexchange/Feedback/FeedbackDetail.vue"),
     },
     {
       path: "/login",

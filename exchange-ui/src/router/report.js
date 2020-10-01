@@ -2,7 +2,8 @@ export const reportRouter = {
 
 	meta: {
 		requireAuth: true,
-		permit: 7
+		permit: 7,
+		title:'reportCenter'
 	},
 	path: '/reportcenter',
 	component: () => import('@/views/ReportCenter.vue'),
@@ -11,7 +12,8 @@ export const reportRouter = {
 		{
 			meta: {
 				requireAuth: true,
-				permit: 2
+				permit: 2,
+				title: 'systemReport'
 			},
 			path: '/report/systemreport',
 			name: '系统报表',
@@ -20,7 +22,8 @@ export const reportRouter = {
 		{
 			meta: {
 				requireAuth: true,
-				permit: 2
+				permit: 2,
+				title: 'storageReport'
 			},
 			path: '/report/collectionreport',
 			name: '馆藏报表',
@@ -29,7 +32,8 @@ export const reportRouter = {
 		{
 			meta: {
 				requireAuth: true,
-				permit: 2
+				permit: 2,
+				title: 'workloadReport'
 			},
 			path: '/report/workloadreport',
 			name: '工作量报表',
@@ -38,7 +42,8 @@ export const reportRouter = {
 		{
 			meta: {
 				requireAuth: true,
-				permit: 2
+				permit: 2,
+				title: 'utilizationReport'
 			},
 			path: '/report/archivesreport',
 			name: '利用统计报表',

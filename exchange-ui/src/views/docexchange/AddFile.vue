@@ -22,7 +22,7 @@
       
     </el-dialog>
 
-    <el-dialog title="导入" :visible.sync="importdialogVisible" width="70%">
+    <el-dialog :title="$t('application.Import')" :visible.sync="importdialogVisible" width="70%">
           
           <el-form size="mini" :label-width="formLabelWidth">
             
@@ -34,21 +34,21 @@
                 :on-change="handleChange"
                 :auto-upload="false"
                 :multiple="false">
-                <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+                <el-button slot="trigger" size="small" type="primary">{{$t('application.selectFile')}}</el-button>
               </el-upload>
             </div>
           </el-form> 
           <div slot="footer" class="dialog-footer">
-            <el-button @click="importdialogVisible = false">取 消</el-button>
-            <el-button type="primary" @click="uploadData(uploadID)">开始导入</el-button>
+            <el-button @click="importdialogVisible = false">{{$t('application.cancel')}}</el-button>
+            <el-button type="primary" @click="uploadData(uploadID)">{{$t('application.start')+$t('application.Import')}}</el-button>
           </div>
         </el-dialog>
 
     <el-dialog :visible.sync="childrenTypeSelectVisible">
       <el-form>
-          <el-form-item label="文件类型" :rules="[{required:true,message:'必填',trigger:'blur'}]">
+          <el-form-item :label="$t('application.fileType')" :rules="[{required:true,message:'必填',trigger:'blur'}]">
                 <el-select  name="selectName"
-                v-model="selectedChildrenType" placeholder="'请选择文件类型'" 
+                v-model="selectedChildrenType" :placeholder="$t('application.selectFileType')"
                 style="display:block;">
                       <div v-for="(name,nameIndex) in childrenTypes">
                         <el-option :label="name" :value="name" :key="nameIndex"></el-option>
@@ -310,10 +310,10 @@ export default {
         _self.importdialogVisible = false;
         // _self.refreshData();
         _self.showInnerFile(null);
-        // _self.$message("导入成功!");
+        // _self.$message(_self.$t('application.Import')+_self.$t('message.success'));
         _self.$message({
               showClose: true,
-              message: "导入成功!",
+              message: _self.$t('application.Import')+_self.$t('message.success'),
               duration: 2000,
               type: 'success'
             });
@@ -930,10 +930,10 @@ export default {
           let code = response.data.code;
           //console.log(JSON.stringify(response));
           if(code==1){
-            // _self.$message("创建成功!");
+            // _self.$message(_self.$t('message.newSuccess'));
             _self.$message({
               showClose: true,
-              message: "创建成功!",
+              message: _self.$t('message.newSuccess'),
               duration: 2000,
               type: 'success'
             });
@@ -945,20 +945,20 @@ export default {
             _self.outerDataList=[];
           }
           else{
-            //  _self.$message("新建失败!");
+            //  _self.$message(_self.$t('message.newFailured'));
              _self.$message({
                   showClose: true,
-                  message: "新建失败!",
+                  message: _self.$t('message.newFailured'),
                   duration: 5000,
                   type: "error"
                 });
           }
         })
         .catch(function(error) {
-          // _self.$message("新建失败!");
+          // _self.$message(_self.$t('message.newFailured'));
           _self.$message({
                   showClose: true,
-                  message: "新建失败!",
+                  message: _self.$t('message.newFailured'),
                   duration: 5000,
                   type: "error"
                 });
@@ -982,20 +982,20 @@ export default {
             _self.$emit('onSaved','update');
           }
           else{
-            //  _self.$message("保存失败!");
+            //  _self.$message(_self.$t('message.saveFailured'));
              _self.$message({
                   showClose: true,
-                  message: "保存失败!",
+                  message: _self.$t('message.saveFailured'),
                   duration: 5000,
                   type: "error"
                 });
           }
         })
         .catch(function(error) {
-          // _self.$message("保存失败!");
+          // _self.$message(_self.$t('message.saveFailured'));
           _self.$message({
                   showClose: true,
-                  message: "保存失败!",
+                  message: _self.$t('message.saveFailured'),
                   duration: 5000,
                   type: "error"
                 });
@@ -1022,7 +1022,7 @@ export default {
         // this.$message("新建成功!");
         _self.$message({
           showClose: true,
-          message: "新建成功!",
+          message:_self.$t('message.operationSuccess'),
           duration: 2000,
           type: 'success'
             });

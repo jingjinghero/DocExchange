@@ -1,15 +1,18 @@
 <template>
-  <el-container>
+  <el-container v-title :data-title="$t('application.name')">
     <div>
        <el-dialog
-      title="借阅"
+      :title="$t('application.borrow')"
       :visible.sync="borrowDialogVisible"
       @close="borrowDialogVisible = false"
       width="95%"
       style="width:100%"
       custom-class="customWidth"
     >
+      <Borrow :docData="borrowData"></Borrow>
+      <!--
          <router-view @showOrHiden="showOrHiden" ref="ShowShopingCart"></router-view>
+        -->
      </el-dialog>
 </div>
     <el-header style="height: 40px;padding-top:8px;">
@@ -18,8 +21,8 @@
       </el-col>
       <el-col :span="4" style="float:right; text-align:right;">
         <template v-if="docObj!=null">
-          <el-button size="mini" icon="el-icon-shopping-cart-2" @click="borrowItem(docObj)">借阅</el-button>
-          <el-button v-if="doc.permit>=4" size="mini" icon="el-icon-download" @click="download()">下载</el-button>
+          <!-- <el-button size="mini" icon="el-icon-shopping-cart-2" @click="borrowItem(docObj)">借阅</el-button> -->
+          <el-button v-if="doc.permit>=4" size="mini" icon="el-icon-download" @click="download()">{{$t('application.download')}}</el-button>
         </template>
       </el-col>
     </el-header>
@@ -32,7 +35,7 @@
            <InnerItemViewer v-else-if="viewerType==100" v-bind:id = "doc.id" v-bind:tableHeight="innerTableHeight"></InnerItemViewer>
            <template v-else-if="doc.permit<3">
              <div style="padding-top:40px;">
-              您没有查看当前文档内容权限，如果需要查看，请点击右上角借阅按钮进行申请授权。
+              {{$t('application.noPermit')}}
              </div>
            </template>
            <template v-else>
@@ -41,12 +44,15 @@
              <ImageViewer v-else-if="viewerType==3" v-bind:id="doc.id" v-bind:format="doc.format"></ImageViewer>
              <VideoPlayer v-else-if="viewerType==4" v-bind:id="doc.id" v-bind:format="doc.format"></VideoPlayer>
              <AudioPlayer v-else-if="viewerType==5" v-bind:id="doc.id" v-bind:format="doc.format"></AudioPlayer>
-             <CADViewer v-else-if="viewerType==6" v-bind:id="doc.id" format="ocf"></CADViewer>
+             <!-- <CADViewer v-else-if="viewerType==6" v-bind:id="doc.id" format="ocf"></CADViewer> -->
+             <CADViewerHtml5 v-else-if="viewerType==6" v-bind:id="doc.id" format="ocf"></CADViewerHtml5>
+             <JTViewer v-else-if="viewerType==7" v-bind:id="doc.id" format="obj" :fileName="doc.C_IMPORT_NAME"></JTViewer>
+             <ThreeDsViewer v-else-if="viewerType==8" v-bind:id="doc.id" ></ThreeDsViewer>
              <div v-else-if="doc.contentSize==0" style="padding-top:40px;">
-                当前文件没有电子文件。
+                {{$t('application.noE-File')}}
             </div>
              <div v-else style="padding-top:40px;">
-               当前格式：{{doc.format}}不支持在线查看，请借阅下载查看。
+              {{$t('application.CurrentFormat')}}{{doc.format}}{{$t('application.CantViewOnline')}}
               </div>
            </template>
         </el-col>
@@ -57,12 +63,27 @@
             <br/>
             <div>
               <template v-if="docObj!=null">
-              <el-button type="primary" plain @click="menuClick('文档属性')">文档属性</el-button><br/>
-              <el-button type="primary" plain @click="menuClick('关联文档')">关联文档</el-button><br/>
-              <el-button type="primary" plain @click="menuClick('文档版本')">文档版本</el-button><br/>
-              <el-button type="primary" plain @click="menuClick('格式副本')">格式副本</el-button><br/>
-              <el-button type="primary" plain @click="menuClick('利用信息')">利用信息</el-button><br/>
-              <el-button v-if="doc.typeName=='图纸文件'" type="primary" plain @click="menuClick('变更信息')">变更( {{doc.changeCount}} )</el-button>
+              <el-button type="primary" plain @click="menuClick($t('application.dcproper'))">{{$t('application.dcproper')}}</el-button><br/>
+              <template v-if="doc.typeName=='设计文件'">
+                <el-button type="primary" plain @click="menuClick($t('application.relationDC'))">{{$t('application.relationDC')}}</el-button><br/>
+              </template>
+              <el-button type="primary" plain @click="menuClick($t('application.DCver'))">{{$t('application.DCver')}}</el-button><br/>
+              <el-button type="primary" plain @click="menuClick($t('application.Rendition'))">{{$t('application.Rendition')}}</el-button><br/>
+              <!-- <el-button type="primary" plain @click="menuClick('利用信息')">利用信息</el-button><br/> -->
+              <template v-if="doc.typeName=='文件传递单'" >
+                <el-button type="primary" plain @click="menuClick($t('application.TransferDoc'))">{{$t('application.TransferDoc')}}</el-button><br/>
+              </template>
+              <template v-if="('FU申请、FU通知单、作废通知单、CR澄清要求申请单、CR澄清要求答复单、CR澄清要求关闭单、'
+              +'FCR现场变更申请单、FCR现场变更答复单、FCR现场变更关闭单、NCR不符合项报告单、NCR不符合项报告答复单、NCR不符合项报告关闭单、'+
+            'DCR设计变更申请单、DCR设计变更答复单、DCR设计变更关闭单、TCR试验澄清申请单、TCR试验澄清答复单、'+
+            'TCR试验澄清关闭单、DEN设计变更通知单、DEN设计变更通知关闭单、设计审查意见、设计审查意见答复').indexOf(doc.typeName)!=-1">
+                <el-button type="primary" plain @click="menuClick($t('application.relevantDoc'))">{{$t('application.relevantDoc')}}</el-button><br/>
+              </template>
+              <template v-if="revertType.indexOf(doc.typeName)!=-1">
+                <el-button type="primary" plain @click="menuClick($t('application.replyDoc'))">{{$t('application.replyDoc')}}</el-button><br/>
+              </template>
+              <el-button type="primary" plain @click="menuClick($t('application.Attachment'))">{{$t('application.Attachment')}}</el-button><br/>
+              <el-button v-if="doc.typeName=='图纸文件'" type="primary" plain @click="menuClick($t('application.Changeinfo'))">{{$t('application.change')}}( {{doc.changeCount}} )</el-button>
               </template>
             </div>
         </el-col>
@@ -70,27 +91,42 @@
     </el-main>
 
     <el-dialog :title="dialog.title" :visible.sync="dialog.visible" width="90%" :before-close="handleClose">      
-      <template v-if="dialog.title=='文档属性'">
+      <template v-if="dialog.title==$t('application.dcproper')">
         <ShowProperty ref="ShowProperty" :itemId="doc.id" :typeName="doc.typeName" :folderId="doc.folderId"></ShowProperty>
       </template>
-      <template v-if="dialog.title=='关联文档'">
+      <template v-if="dialog.title==$t('application.relationDC')">
        <RelationDocs :docId="docId"></RelationDocs>
       </template>
-       <template v-if="dialog.title=='文档版本'">
+       <template v-if="dialog.title==$t('application.DCver')">
         <DocVersion :docId="docId"></DocVersion>
       </template>
-       <template v-if="dialog.title=='格式副本'">
+       <template v-if="dialog.title==$t('application.Rendition')">
         <ViewRedition :docId="docId" :downloadEnable="doc.permit>=4"></ViewRedition>
+      </template>
+      <template v-if="dialog.title==$t('application.TransferDoc')">
+        <InTransferDoc :docId="docId"></InTransferDoc>
+      </template>
+      <template v-if="dialog.title==$t('application.relevantDoc')">
+        <RelevantDoc :docId="docId"></RelevantDoc>
+      </template>
+      <template v-if="dialog.title==$t('application.Attachment')">
+        <AttachmentFile :docId="docId" :allowEdit="false"></AttachmentFile>
+      </template>
+      <template v-if="dialog.title==$t('application.replyDoc')">
+        <!-- <AttachmentFile :docId="docId"></AttachmentFile> -->
+        <RevertFile :docId="docId"></RevertFile>
       </template>
       <template v-if="dialog.title=='利用信息'">
         <UseInfo :docId="docId"></UseInfo>
       </template>
-       <template v-if="dialog.title=='变更信息'">
+       <template v-if="dialog.title==$t('application.Changeinfo')">
         <ChangeDocViewer :coding="doc.code" :revision="doc.revision"></ChangeDocViewer>
       </template>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialog.visible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogSubmit()">确 定</el-button>
+        <el-button @click="dialog.visible = false">{{$t('application.cancel')}}</el-button>
+        <!--
+        <el-button type="primary" @click="dialogSubmit()">{{$t('application.ok')}}</el-button>
+        -->
       </span>
     </el-dialog>
   </el-container>
@@ -114,6 +150,14 @@ import AudioPlayer from './AudioPlayer.vue'
 import InnerItemViewer from "./InnerItemViewer.vue"
 import ChangeDocViewer from "./ChangeDocViewer.vue"
 import CADViewer from "./CADViewer.vue"
+import CADViewerHtml5 from "./CADViewerHtml5.vue"
+import JTViewer from "./JTViewer2.vue"
+import ThreeDsViewer from "./ThreeDsViewer.vue"
+import Borrow from "@/components/form/Borrow.vue"
+import InTransferDoc from "@/views/dc/InTransferDoc.vue"
+import RelevantDoc from "@/views/dc/RelevantDoc.vue"
+import AttachmentFile from "@/views/dc/AttachmentFile.vue"
+import RevertFile from "@/views/dc/RevertFile.vue"
 import { timeout } from 'q'
 
 export default {
@@ -131,7 +175,15 @@ export default {
     InnerItemViewer:InnerItemViewer,
     ChangeDocViewer:ChangeDocViewer,
     PdfViewer:PdfViewer,
-    CADViewer:CADViewer
+    CADViewer:CADViewer,
+    CADViewerHtml5:CADViewerHtml5,
+    JTViewer:JTViewer,
+    Borrow:Borrow,
+    ThreeDsViewer: ThreeDsViewer,
+    InTransferDoc:InTransferDoc,
+    RelevantDoc:RelevantDoc,
+    AttachmentFile:AttachmentFile,
+    RevertFile:RevertFile
   },
   data(){
     return {
@@ -140,6 +192,7 @@ export default {
       docId:"",
       docObj:null,
       viewerType: 0,
+      borrowData:[],
       ip:"",
       doc:{
         id:"",
@@ -152,7 +205,8 @@ export default {
         permit:0,
         contentSize:0,
         hasPdf:false,
-        changeCount:0
+        changeCount:0,
+        C_IMPORT_NAME:''
       },
       message:"加载中。。。",
       watermarkText:"",
@@ -162,6 +216,7 @@ export default {
         visible:false
       },
       borrowDialogVisible:false,
+      revertType:""
     }
   },
   created(){
@@ -199,6 +254,7 @@ export default {
           _self.doc.format ="pdf";
         }
         _self.doc.typeName= _self.docObj.TYPE_NAME;
+        _self.doc.C_IMPORT_NAME=_self.docObj.C_IMPORT_NAME;
         _self.initViewerType();
         if(_self.viewerType>0 && _self.viewerType<100){
           _self.watermarkText =  sessionStorage.getItem("access-userName");
@@ -241,15 +297,30 @@ export default {
           _self.viewerType = 5;
         }else if(_self.doc.format == "ocf"||_self.doc.format == "cad"){
           _self.viewerType = 6;
+        }else if(_self.doc.format == "obj"||_self.doc.format == "jt"){
+          _self.viewerType = 7;
+        }else if(_self.doc.format == "3ds"||_self.doc.format == "rvm"){
+          _self.viewerType = 8;
         }
       }
       //console.log(_self.viewerType);
+    },
+    getTypeNames(keyName) {
+        let _self = this;
+        axios
+            .post("/dc/getParameters", keyName)
+            .then(function(response) {
+              _self.revertType = response.data.data.RevertType;
+            }).catch(function(error) {
+              console.log(error);
+            });
     },
     download(){
       let url = this.axios.defaults.baseURL+"/dc/getContent?id="+this.doc.id+"&token="+sessionStorage.getItem('access-token')+"&action=download";
       window.open(url, '_blank');
     },    
     menuClick(type){
+      console.log(this.$t('application.dcproper'))
       this.dialog.title=type;
       this.dialog.visible=true
     },
@@ -257,8 +328,7 @@ export default {
       this.dialog.visible = false
     },
     dialogSubmit(){
-      if(this.dialog.title=='文档属性'){
-        
+      if(this.dialog.title==this.$t('application.dcproper') && this.currentUser().systemPermission>5){
         this.$refs.ShowProperty.saveItem();
         
         this.dialog.visible = false
@@ -297,27 +367,20 @@ export default {
       },
       borrowItem(obj) {
         let _self = this;
-        let rowData=[];
-        _self.borrowDialogVisible=true;
-        rowData.push(obj);
+       
         if(typeof(obj.C_ARCHIVE_UNIT)=="undefined"){
               _self.$message({
                 showClose: true,
-                message: "所借阅档案，归档单位为空，不能外借!",
+                message: _self.$t('message.EmptyPlaceOnFile'),
                 duration: 5000,
                 type: "warning"
               });
               return;
         }
-          setTimeout(() => {
-          _self.$router.replace({
-            path:'/viewDoc_borrow',
-            query: { tabledata: rowData,
-            C_ARCHIVE_UNIT:obj.C_ARCHIVE_UNIT
-            }
-          });
-    
-        }, 100);
+        _self.borrowData=[];
+        
+        _self.borrowData.push(obj);
+        _self.borrowDialogVisible=true;
       },
     showOrHiden(b){
       this.borrowDialogVisible=b;
@@ -330,6 +393,7 @@ export default {
 <style scoped>
 .aside-rigth .el-button{
   margin-bottom: 5px;
+  margin-left: 5px;
 }
 .doccontent{
   min-height: 640px;
@@ -339,7 +403,21 @@ export default {
 }
 .el-header{
   color: white;
+  background-color: #36a9e1;
   padding-top: 15px;
   padding-left: 15px;
+}
+
+.el-main {
+    display: block;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    -ms-flex-preferred-size: auto;
+    flex-basis: auto;
+    overflow: auto;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 0px;
 }
 </style>

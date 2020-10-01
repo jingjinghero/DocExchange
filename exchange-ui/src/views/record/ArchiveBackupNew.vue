@@ -11,11 +11,11 @@
             
             <el-col :span="12" class="topbar-button">
                 <el-button type="primary" plain
-                size="small" icon="el-icon-circle-plus-outline" @click="onCreate">新建</el-button>
+                size="small" icon="el-icon-circle-plus-outline" @click="onCreate">{{$t('application.new')}}</el-button>
                 <el-button type="primary" plain
                 size="small" icon="el-icon-upload2" @click="release('制作中')">发布</el-button>
                 <el-button type="primary" plain
-                size="small" icon="el-icon-folder-delete" @click="onDeleleFileItem">删除</el-button>
+                size="small" icon="el-icon-folder-delete" @click="onDeleleFileItem">{{$t('application.delete')}}</el-button>
             </el-col>
             
         </el-row>
@@ -264,10 +264,10 @@ export default {
           let code = response.data.code;
           //console.log(JSON.stringify(response));
           if(code==1){
-            // _self.$message("创建成功!");
+            // _self.$message(_self.$t('message.newSuccess'));
             _self.$message({
               showClose: true,
-              message: "创建成功!",
+              message: _self.$t('message.newSuccess'),
               duration: 2000,
               type: 'success'
             });
@@ -277,20 +277,20 @@ export default {
            
           }
           else{
-            //  _self.$message("新建失败!");
+            //  _self.$message(_self.$t('message.newFailured'));
              _self.$message({
                   showClose: true,
-                  message: "新建失败!",
+                  message: _self.$t('message.newFailured'),
                   duration: 5000,
                   type: "error"
                 });
           }
         })
         .catch(function(error) {
-          // _self.$message("新建失败!");
+          // _self.$message(_self.$t('message.newFailured'));
           _self.$message({
                   showClose: true,
-                  message: "新建失败!",
+                  message: _self.$t('message.newFailured'),
                   duration: 5000,
                   type: "error"
                 });
@@ -314,20 +314,20 @@ export default {
             _self.$emit('onSaved','update');
           }
           else{
-            //  _self.$message("保存失败!");
+            //  _self.$message(_self.$t('message.saveFailured'));
              _self.$message({
                   showClose: true,
-                  message: "保存失败!",
+                  message: _self.$t('message.saveFailured'),
                   duration: 5000,
                   type: "error"
                 });
           }
         })
         .catch(function(error) {
-          // _self.$message("保存失败!");
+          // _self.$message(_self.$t('message.saveFailured'));
           _self.$message({
                   showClose: true,
-                  message: "保存失败!",
+                  message: _self.$t('message.saveFailured'),
                   duration: 5000,
                   type: "error"
                 });
@@ -354,7 +354,7 @@ export default {
         // this.$message("新建成功!");
         _self.$message({
           showClose: true,
-          message: "新建成功!",
+          message: _self.$t('message.operationSuccess'),
           duration: 2000,
           type: 'success'
             });

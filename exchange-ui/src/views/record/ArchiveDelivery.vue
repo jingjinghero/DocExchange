@@ -3,17 +3,17 @@
     <el-dialog title="添加复用文件" :visible.sync="reuseVisible" width="80%">
       <AddReuse ref="addReuseModel"></AddReuse>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="reuseVisible = false">取 消</el-button>
+        <el-button @click="reuseVisible = false">{{$t('application.cancel')}}</el-button>
         <el-button type="primary" @click="addReuseToVolume()">确定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="批量导入文档" :visible.sync="batchDialogVisible" width="80%" >
+    <el-dialog :title="$t('message.Batch')+' '+$t('application.Import')+$t('application.document')" :visible.sync="batchDialogVisible" width="80%" >
         <BatchImport ref="BatchImport"  @onImported="onBatchImported" width="100%" v-bind:deliveryId="selectedOneTransfer.ID"></BatchImport>
         <div slot="footer" class="dialog-footer">
-          <el-button @click="batchDialogVisible=false" size="medium">关闭</el-button>
+          <el-button @click="batchDialogVisible=false" size="medium">{{$t('application.close')}}</el-button>
          </div>
       </el-dialog>
-    <el-dialog title="导入" :visible.sync="importdialogVisible" width="70%">
+    <el-dialog :title="$t('application.Import')" :visible.sync="importdialogVisible" width="70%">
       <el-form size="mini" :label-width="formLabelWidth" v-loading='uploading'>
         <div style="height:200px;overflow-y:scroll; overflow-x:scroll;">
           <el-upload
@@ -24,23 +24,23 @@
             :auto-upload="false"
             :multiple="false"
           >
-            <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+            <el-button slot="trigger" size="small" type="primary">{{$t('application.selectFile')}}</el-button>
           </el-upload>
         </div>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="importdialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="uploadData()">开始导入</el-button>
+        <el-button @click="importdialogVisible = false">{{$t('application.cancel')}}</el-button>
+        <el-button type="primary" @click="uploadData()">{{$t('application.start')+$t('application.Import')}}</el-button>
       </div>
     </el-dialog>
 
     <el-dialog :visible.sync="typeSelectVisible">
       <el-form>
-        <el-form-item label="文件类型" :rules="[{required:true,message:'必填',trigger:'blur'}]">
+        <el-form-item :label="$t('application.fileType')" :rules="[{required:true,message:'必填',trigger:'blur'}]">
           <el-select
             name="selectName"
             v-model="selectedTypeName"
-            placeholder="'请选择文件类型'"
+            :placeholder="$t('application.selectFileType')"
             style="display:block;"
           >
             <div v-for="(name,nameIndex) in typeNames" :key="'T_'+nameIndex">
@@ -58,11 +58,11 @@
 
     <el-dialog :visible.sync="childrenTypeSelectVisible">
       <el-form>
-        <el-form-item label="文件类型" :rules="[{required:true,message:'必填',trigger:'blur'}]">
+        <el-form-item :label="$t('application.fileType')" :rules="[{required:true,message:'必填',trigger:'blur'}]">
           <el-select
             name="selectName"
             v-model="selectedChildrenType"
-            placeholder="'请选择文件类型'"
+            :placeholder="$t('application.selectFileType')"
             style="display:block;"
           >
             <div v-for="(name,nameIndex) in childrenTypes" :key="'T2_'+nameIndex">
@@ -221,6 +221,9 @@
           key="main"
           v-bind:itemDataList="itemDataList"
           v-bind:columnList="gridList"
+          :sysColumnInfo="sysColumnInfo"
+          gridViewName="ArchiveGrid"
+          isshowCustom="true"
           @pagesizechange="pageSizeChange"
           @pagechange="pageChange"
           v-bind:itemCount="itemCount"
@@ -248,7 +251,7 @@
             @click="beforeAddreuse()"
           >{{$t('application.addReuseFile')}}</el-button>
           
-          <el-button type="primary" plain size="small" title="删除" @click="onDeleleFileItem()">删除</el-button>
+          <el-button type="primary" plain size="small" title="删除" @click="onDeleleFileItem()">{{$t('application.delete')}}</el-button>
           <el-button
             type="primary"
             plain
@@ -333,6 +336,7 @@ export default {
       selectTransferRow: [],
       selectedOneTransfer:[],
       gridList: [],
+      sysColumnInfo:[],
       innerGridList: [],
       outerGridList: [],
       currentFolder: [],
@@ -369,8 +373,8 @@ export default {
       uploadUrl: "",
       selectedChildrenType: "",
       childrenTypeSelectVisible: false,
-      leftTableHeight: window.innerHeight - 124,
-      rightTableHeight: (window.innerHeight - 200)/2,
+      leftTableHeight: window.innerHeight - 160,
+      rightTableHeight: (window.innerHeight - 240)/2,
       folderAction: "",
       folderDialogVisible: false,
       imageArray: [""],
@@ -491,7 +495,7 @@ export default {
         // _self.$message('请选择一条文件数据');
          _self.$message({
                 showClose: true,
-                message: '请选择一条文件数据!',
+                message: _self.$t('message.PleaseSelectOneFile'),
                 duration: 2000,
                 type: "warning"
               });
@@ -968,7 +972,8 @@ export default {
         })
         .then(function(response) {
           _self.showFields = [];
-          _self.gridList = response.data.data;
+          _self.gridList = response.data.data;;
+          _self.sysColumnInfo=response.data.data;;
           _self.gridList.forEach(element => {
             if (element.visibleType == 1) {
               _self.showFields.push(element.attrName);
@@ -1343,10 +1348,10 @@ export default {
             let code = response.data.code;
             //console.log(JSON.stringify(response));
             if (code == 1) {
-              // _self.$message("创建成功!");
+              // _self.$message(_self.$t('message.newSuccess'));
               _self.$message({
                 showClose: true,
-                message: "创建成功!",
+                message: _self.$t('message.newSuccess'),
                 duration: 2000,
                 type: "success"
               });
@@ -1356,20 +1361,20 @@ export default {
               _self.loadGridData(null);
               _self.showInnerFile(null);
             } else {
-              // _self.$message("新建失败!");
+              // _self.$message(_self.$t('message.newFailured'));
               _self.$message({
                 showClose: true,
-                message: "新建失败!",
+                message: _self.$t('message.newFailured'),
                 duration: 2000,
                 type: "warning"
               });
             }
           })
           .catch(function(error) {
-            // _self.$message("新建失败!");
+            // _self.$message(_self.$t('message.newFailured'));
             _self.$message({
                 showClose: true,
-                message: "新建失败!",
+                message: _self.$t('message.newFailured'),
                 duration: 5000,
                 type: "error"
               });
@@ -1391,20 +1396,20 @@ export default {
             if (code == 1) {
               _self.$emit("onSaved", "update");
             } else {
-              // _self.$message("保存失败!");
+              // _self.$message(_self.$t('message.saveFailured'));
               _self.$message({
                 showClose: true,
-                message: "保存失败!",
+                message: _self.$t('message.saveFailured'),
                 duration: 5000,
                 type: "error"
               });
             }
           })
           .catch(function(error) {
-            // _self.$message("保存失败!");
+            // _self.$message(_self.$t('message.saveFailured'));
             _self.$message({
                 showClose: true,
-                message: "保存失败!",
+                message: _self.$t('message.saveFailured'),
                 duration: 5000,
                 type: "error"
               });
@@ -1427,7 +1432,7 @@ export default {
         // _self.$message("新建成功!");
         _self.$message({
             showClose: true,
-            message: "新建成功",
+            message: _self.$t('message.operationSuccess'),
             duration: 2000,
             type: 'success'
           });
@@ -1927,10 +1932,10 @@ export default {
           _self.importdialogVisible = false;
           // _self.refreshData();
           _self.uploading=false;
-          // _self.$message("导入成功!");
+          // _self.$message(_self.$t('application.Import')+_self.$t('message.success'));
           _self.$message({
                 showClose: true,
-                message: "导入成功!",
+                message: _self.$t('application.Import')+_self.$t('message.success'),
                 duration: 2000,
                 type: 'success'
               });
@@ -1956,10 +1961,10 @@ export default {
         .then(function(response) {
           let code = response.data.code;
           if (code == "1") {
-            // _self.$message("创建成功!");
+            // _self.$message(_self.$t('message.newSuccess'));
             _self.$message({
                 showClose: true,
-                message: "创建成功!",
+                message: _self.$t('message.newSuccess'),
                 duration: 2000,
                 type: 'success'
               });
@@ -1969,10 +1974,10 @@ export default {
             // _self.loadGridData(null);
             // _self.showInnerFile(null);
           } else {
-            // _self.$message("新建失败!");
+            // _self.$message(_self.$t('message.newFailured'));
             _self.$message({
                 showClose: true,
-                message: "新建失败!",
+                message: _self.$t('message.newFailured'),
                 duration: 5000,
                 type: 'error'
               });

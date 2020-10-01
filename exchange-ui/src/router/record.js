@@ -29,6 +29,16 @@ export const recordRouter =  [
         name: '档案整理',
         component: () => import('@/views/record/ArchiveArrange.vue')
     },
+		{
+			meta: {
+				requireAuth: true,
+				permit: 1,
+				title:'storageManager'
+			},
+			path: '/record/StorageRoom',
+			component: () => import('@/views/record/StorageRoom.vue'),
+			name: '库房管理'
+		},
     {
         meta: {
             requireAuth: true,
@@ -39,6 +49,16 @@ export const recordRouter =  [
         name: '档案工具',
         component: () => import('@/views/record/ArchiveTool.vue'),
         children:[
+            {
+                meta: {
+                    requireAuth: true,
+                    permit: 1,
+                    title:"check4"
+                },
+                path: '/record/check4',
+                name: '四性检查',
+                component: () => import('@/views/record/Check4.vue')
+            },
             {
                 meta: {
                     requireAuth: true,

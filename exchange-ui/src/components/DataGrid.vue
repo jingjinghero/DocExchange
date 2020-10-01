@@ -1,39 +1,53 @@
 <template>
   <div>
     <div>
-      <el-dialog
+      <!-- 创建分发 -->
+       <!--  -->
+      <el-dialog :append-to-body="true" :title="$t('application.editColumn')" :visible.sync="editColumn" @close="onCloseCustom"  width="80%" destroy-on-close>
+        <EcmCustomColumns ref="ecmCustomColumns" :gridViewName="gridViewName" @onClose="onCloseCustom">
+
+        </EcmCustomColumns>
+      </el-dialog>
+      
+      <el-dialog v-dialogDrag
         :append-to-body="true"
         :title="typeName+$t('application.property')"
         :visible.sync="propertyVisible"
         @close="propertyVisible = false"
-        width="90%"
+        width="92%"
         style="text-align:center"
       >
         <ShowProperty
           ref="ShowProperty"
           @onSaved="onSaved"
+          @onSaveSuccess="onPropertiesSaveSuccess"
           width="100%"
           :typeName="typeName"
           v-bind:itemId="selectedItemId"
         ></ShowProperty>
+        <RelationViewer v-if="showRelationViewer" ref="RelationViewer" :allowEdit="isEditProperty"></RelationViewer>
         <div slot="footer" class="dialog-footer">
-          <el-button @click="saveItem()">{{$t('application.save')}}</el-button>
+          <slot name="saveButton" :data="propertiesData">
+            <el-button v-if="isEditProperty" @click="saveItem()">{{$t('application.save')}}</el-button>
+          </slot>
+          
           <el-button @click="propertyVisible = false">{{$t('application.cancel')}}</el-button>
         </div>
       </el-dialog>
       <!-- 选字段对话框 -->
       <el-dialog
-        title="选择需要展示的字段"
+        :title="$t('application.chooseColumn')"
         :visible.sync="columnsInfo.dialogFormVisible"
         width="40%"
         center
         top="15vh"
+        :append-to-body="true"
       >
         <el-checkbox
           :indeterminate="columnsInfo.isIndeterminate"
           v-model="columnsInfo.checkAll"
           @change="handleCheckAllChange"
-        >全选</el-checkbox>
+        >{{$t('application.selectAll')}}</el-checkbox>
         <div style="margin: 15px 0;"></div>
         <el-checkbox-group v-model="showFields" @change="handleCheckedColsChange">
           <el-checkbox
@@ -43,11 +57,13 @@
           >{{item.label}}</el-checkbox>
         </el-checkbox-group>
         <div slot="footer" class="dialog-footer">
-          <el-button @click="columnsInfo.dialogFormVisible=false" size="medium">取 消</el-button>
-          <el-button type="primary" @click="confirmShow" size="medium">确定</el-button>
+          <el-button @click="columnsInfo.dialogFormVisible=false" size="medium">{{$t('application.cancel')}}</el-button>
+          <el-button type="primary" @click="confirmShow" size="medium">{{$t('application.ok')}}</el-button>
         </div>
       </el-dialog>
+
         <el-table
+          :key="rkey"
           id="datatable"
           :height="tableHeight"
           :data="itemDataList"
@@ -60,11 +76,15 @@
           v-loading="loading"
           :style="{'width': tableWidth}"
           highlight-current-row
+          @cell-mouse-enter="cellMouseEnter"
+          @cell-mouse-leave="cellMouseLeave"
         >
           <el-table-column v-if="isshowSelection" type="selection" width="40"></el-table-column>
-          <el-table-column :label="$t('field.indexNumber')" key="#1" width="70">
+          <el-table-column :label="$t('field.indexNumber')" key="#1" width="70" >
             <template slot-scope="scope">
-              <span>{{(currentPage-1) * pageSize + scope.$index+1}}</span>
+              <slot name="sequee" :data="scope">
+                <span>{{(currentPage-1) * pageSize + scope.$index+1}}</span>
+              </slot>
             </template>
           </el-table-column>
           <el-table-column width="40" v-if="isshowicon">
@@ -93,14 +113,16 @@
                 />
             </template>
           </el-table-column>
-          <div v-for="(citem,idx) in columnList" :key="idx+'_C'">
-            <div v-if="citem.visibleType==1">
-              <div v-if="(citem.width+'').indexOf('%')>0">
+          <template>
+          <template v-for="(citem,idx) in columnList" >
+            <template v-if="citem.visibleType==1" >
+              <template v-if="(citem.width+'').indexOf('%')>0">
                 <el-table-column
                   :label="citem.label"
                   :prop="citem.attrName"
                   :min-width="citem.width"
                   :sortable="citem.allowOrderby"
+                  :key="idx+'_C'"
                 >
                   <template slot-scope="scope">
                     <div v-if="citem.attrName.indexOf('DATE')>0">
@@ -111,13 +133,14 @@
                     </div>
                   </template>
                 </el-table-column>
-              </div>
-              <div v-else>
+              </template>
+              <template v-else>
                 <el-table-column
                   :label="citem.label"
                   :width="citem.width"
                   :prop="citem.attrName"
                   :sortable="citem.allowOrderby"
+                  :key="idx+'_C'"
                 >
                   <template slot-scope="scope">
                     <div v-if="citem.attrName.indexOf('DATE')>0">
@@ -128,45 +151,70 @@
                     </div>
                   </template>
                 </el-table-column>
-              </div>
-            </div>
-          </div>
-          <el-table-column v-if="isshowOption" :label="$t('application.operation')" width="140">
+              </template>
+            </template>
+          </template>
+          </template>
+          <el-table-column v-if="isshowOption" :label="$t('application.operation')" :width="optionWidth*55">
+            
             <template slot="header">
               <el-button icon="el-icon-s-grid" size="small" @click="dialogFormShow" title="选择展示字段"></el-button>
+              <template v-if="isShowChangeList">
+                <el-dropdown trigger="click" style="overflow:visible">
+                  <el-button
+                  type="primary"
+                  plain
+                  size="small"
+                  title="列表选择"
+                  icon="el-icon-more"
+                ></el-button>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item v-for="(item,idx) in customList"
+                    :key="idx+'_Cz'"
+                    @click.native="showCustomInfo(item)">{{item.description}}</el-dropdown-item>
+                    
+                  </el-dropdown-menu>
+                </el-dropdown>
+              </template>
+              <el-button v-if="isshowCustom" icon="el-icon-setting" size="small" @click="showEditColumn" :title="$t('application.customColumn')"></el-button>
+              
             </template>
             <template slot-scope="scope">
-              <!-- <el-button type="primary" plain size="small" :title="$t('application.viewProperty')" icon="el-icon-info" @click="showItemProperty(scope.row)"></el-button>
-                            <el-button type="primary" plain size="small" :title="$t('application.viewContent')" icon="el-icon-picture-outline" @click="showItemContent(scope.row)"></el-button>
-              <el-button type="primary" plain size="small" :title="$t('application.view')" icon="el-icon-picture-outline" @click="showNewWindow(scope.row.ID)"></el-button>-->
-              <el-button
-                type="primary"
-                plain
-                size="small"
-                :title="$t('application.viewContent')"
-                icon="el-icon-picture-outline"
-                @click="showMenu($event)"
-              ></el-button>
-              <!-- showItemContent(scope.row) -->
-              <el-button
-                type="primary"
-                plain
-                size="small"
-                :title="$t('application.property')"
-                icon="el-icon-info"
-                @click="showItemProperty(scope.row)"
-              ></el-button>
+              <slot name="optionButton" :data="scope">
+                <slot name="customMoreOption" :data="scope">
+                  <template v-if="isShowMoreOption">
+                    <el-dropdown trigger="click">
+                      <el-button
+                      type="primary"
+                      plain
+                      size="small"
+                      :title="$t('application.more')"
+                      icon="el-icon-more"
+                    ></el-button>
+                      <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item v-if="showOptions.indexOf('查看内容')!=-1" icon="el-icon-reading" @click.native="showItemContent(selectedRow)">查看内容</el-dropdown-item>
+                        <el-dropdown-item v-if="showOptions.indexOf('查看属性')!=-1" icon="el-icon-info" @click.native="showItemProperty(selectedRow)">查看属性</el-dropdown-item>
+                        <el-dropdown-item v-if="showOptions.indexOf('加入购物车')!=-1" icon="el-icon-circle-plus-outline" @click.native="addToShoppingCar([selectedRow])">加入购物车</el-dropdown-item>
+                        <el-dropdown-item v-if="showOptions.indexOf('升版')!=-1" icon="el-icon-check" @click.native="upgrade(selectedRow)">升版</el-dropdown-item>
+                        <slot name="dropdownItem" :data="scope"></slot>
+                      </el-dropdown-menu>
+                    </el-dropdown>
+                  </template>
+                </slot>
+                <!-- showItemContent(scope.row) -->
+                <el-button v-if="isShowPropertyButton"
+                  type="primary"
+                  plain
+                  size="small"
+                  :title="$t('application.property')"
+                  icon="el-icon-info"
+                  @click="showItemProperty(scope.row)"
+                ></el-button>
+              </slot>
             </template>
           </el-table-column>
         </el-table>
-
-        <div id="menu" @mouseleave="leave">
-            <div class="menu" @click="showItemContent(selectedRow)">查看内容</div>
-            <div class="menu" @click="showItemProperty(selectedRow)">查看属性</div>
-            <div class="menu" @click="addToShoppingCar([selectedRow])">加入购物车</div>
-            <div class="menu" @click="upgrade(selectedRow)">升版</div>
-        </div>
-       
+        
       <el-pagination
         v-if="isshowPage"
         background
@@ -182,11 +230,24 @@
   </div>
 </template>
 <script type="text/javascript">
-import ShowProperty from "@/components/ShowProperty";
+import "@/utils/dialog"
+import ShowProperty from "@/components/ShowProperty"
+import EcmCustomColumns from "@/components/ecm-custom-columns"
+import RelationViewer from "@/components/RelationViewer"
 export default {
   name: "dataGrid",
   data() {
+    
     return {
+      rkey:0,
+      refreshCustomView:true,
+      inputColumn:false,
+      customNames:[],
+      customList:[],
+      selectedName:"",
+      leftData:[],
+      selectedColumns:[],
+      editColumn:false,
       columnsInfo: {
         checkAll: true,
         checkedCities: [],
@@ -200,20 +261,48 @@ export default {
       showFields: [],
       selectedItemId: "",
       selectedRow:"",
-      typeName:""
+      typeName:"",
+      selectedKey:[],
+      selectedIndex:"",
+      // itemDataList:[],
+      columnList:[],
+      sysColumnInfo:[],
+      itemCount:0,
+      formName:'',
+      currentLanguage:"zh-cn",
+      propertiesData:[],
+      gridviewInfo:{
+        gridviewName:"",
+        isCustom:false
+      },
+      showRelationViewer: false,
+      timer: null
     };
   },
   props: {
+    isInitData: { type: Boolean, default: true },//是否初始化数据
     itemDataList: { type: Array, default: null },
-    columnList: { type: Array, default: null },
-    isshowicon: { type: Boolean, default: true },
+    isEditProperty:{ type: Boolean, default: true },//属性页面中是否显示保存按钮
+    // sysColumnInfo:{type: Array, default: null},
+    // columnList: { type: Array, default: null },
+    isshowicon: { type: Boolean, default: true },//是否显示图标
     isshowOption: { type: Boolean, default: false },
     isshowSelection: { type: Boolean, default: true },
     tableHeight: { type: [String, Number], default: window.innerHeight - 408 },
     tableWidth: { type: [String, Number], default: "100%" },
-    itemCount: { type: [String, Number] },
+    // itemCount: { type: [String, Number] },
     isshowPage: { type: Boolean, default: true },
-    loading: { type: Boolean, default: false }
+    loading: { type: Boolean, default: false },
+    gridViewName:{type:String,default:''},
+    isshowCustom:{type:Boolean,default:false},
+    condition:{type:String,default:""},
+    dataUrl:{type:String,default:""},
+    parentId:{type:String,default:""},
+    isShowMoreOption:{type:Boolean,default:true},//是否显示功能菜单
+    isShowPropertyButton:{type:Boolean,default:true},//是否显示属性按钮
+    showOptions:{type:String,default:"查看内容,查看属性,加入购物车,升版"},//功能菜单显示控制
+    isShowChangeList:{type:Boolean,default:true},//是否显示列表选择
+    optionWidth:{type:Number,default:3}//操作列宽度，放几个按钮
   },
   watch: {
     showFields(val, oldVal) {
@@ -230,30 +319,403 @@ export default {
           item.visibleType = 1;
         }
       });
-    }
+    },
+    
+    value(val) {
+				this.selectedColumns = val;
+			},
+			selectedColumns(val){
+				this.$emit('input', val);
+      },
+      
+      '$store.state.app.language':function(nv,ov){
+        this.currentLanguage=nv;
+        this.loadGridInfo();
+      }
   },
   components: {
-    ShowProperty: ShowProperty
+    ShowProperty: ShowProperty,
+    EcmCustomColumns:EcmCustomColumns,
+    RelationViewer:RelationViewer
   },
   mounted(){
     // this.ready();
+    this.gridviewInfo.gridviewName = this.gridViewName
+    this.gridviewInfo.isCustom = false
+    this.currentLanguage = localStorage.getItem("localeLanguage") || "zh-cn";
+    this.loadCustomName();
+    this.loadGridInfo();
+    if(this.isInitData){
+      this.loadGridData();
+    }
+    
   },
   methods: {
-    // ready(){
+    onPropertiesSaveSuccess(props){
+      this.$emit("onPropertiesSaveSuccess",props)
+    },
+    getPropertiesData(){
+      let _self = this;
+      clearInterval(_self.timer);
+        _self.timer = setTimeout(()=>{
+        if(_self.$refs.ShowProperty){
+          _self.propertiesData=_self.$refs.ShowProperty.getFormData();
+        }
+      },100);
+    },
+    loadGridData(){
+      this.loadGridData(null);
+    },
+    // 加载表格数据
+    loadGridData(gvname) {
+      let _self = this;
+      // let tbHeight = _self.tableHeight;
+       _self.loading = true;
+      var m = new Map();
+      m.set("gridName", this.gridviewInfo.gridviewName);
+      // m.set('folderId',indata.id);
+      m.set("condition", _self.condition);
+      if(_self.parentId!=''){
+         m.set("id", _self.parentId);
+      }
+      m.set("pageSize", _self.pageSize);
+      m.set("pageIndex",  _self.currentPage - 1);
+      m.set("orderBy", "");
+      axios.post(this.dataUrl,JSON.stringify(m)).then(function(response){
+        _self.itemDataList = response.data.data;
+        _self.itemCount = response.data.pager?response.data.pager.total:0;
+        _self.loading = false;
+        setTimeout(() => {
+          _self.tableHeight = _self.tableHeight-1;
+        }, 100);
+      }).catch(function(error){
+          console.log(error);
+          _self.loading = false;
+      })
+    },
+
+    onCloseCustom(){
+      let _self=this;
+      _self.editColumn = false;
+      _self.$nextTick(()=>{
+        _self.loadCustomName();
+        _self.$forceUpdate();
+        _self.rkey++;
+        // location.reload();
+      })
+      _self.$refs.ecmCustomColumns.clearData()
+    },
+    deleteGridView(){
+      let _self=this;
+      var m = new Map();
+      m.set('gridName',_self.gridViewName);
+      m.set('NAME',_self.selectedName);
+      m.set("lang", _self.currentLanguage);
+      _self.axios({
+            headers: {
+            "Content-Type": "application/json;charset=UTF-8"
+            },
+            method: 'post',
+            data: JSON.stringify(m),
+            url: "/admin/deleteCustomGridView"
+        })
+            .then(function(response) {
+              if(response.data.code==1){
+                _self.$message({
+                      showClose: true,
+                      message: _self.$t('message.deleteSuccess'),
+                      duration: 2000,
+                      type: "Success"
+                    });
+                    _self.selectedName='';
+                    _self.loadCustomName();
+                
+              }
+              
+            })
+            .catch(function(error) {
+            console.log(error);
+            });
+    },
+    showCustomInfo(item){
+      let id = item.id
+      let _self=this;
+      var m = new Map();
+      m.set('gridId',id);
+      m.set("lang", _self.currentLanguage);
+      let url ="/dc/getOneEcmCustomGridViewInfo"
+      axios.post(url,JSON.stringify(m)).then(function(response) {
+        if(response.data.code==1){
+          _self.gridviewInfo.gridviewName = item.name
+          _self.gridviewInfo.isCustom = true
+          _self.columnList=response.data.data;
+          _self.loadGridData()
+
+        }
+      })
+      .catch(function(error) {
+        console.log(error);
+      });
+    },
+    createCustomGrid(){
+    let _self=this;
+    if(_self.selectedName==''){
+      _self.$message({
+                      showClose: true,
+                      message:_self.$t('message.nameIsNull'),
+                      duration: 2000,
+                      type: "Error"
+                    });
+      return;
+    }
+        var m = new Map();
+        m.set('gridName',_self.gridViewName);
+        m.set('NAME',_self.selectedName);
+        
+        _self.axios({
+            headers: {
+            "Content-Type": "application/json;charset=UTF-8"
+            },
+            method: 'post',
+            data: JSON.stringify(m),
+            url: "/admin/createOrUpdateGridView"
+        })
+            .then(function(response) {
+              if(response.data.code==1){
+                _self.$message({
+                      showClose: true,
+                      message:_self.$t('message.saveSuccess'),
+                      duration: 2000,
+                      type: "Success"
+                    });
+
+              }
+              _self.inputColumn=false;
+              _self.loadCustomName();
+              
+            })
+            .catch(function(error) {
+            console.log(error);
+            });
+  },
+  loadCustomName(){
+    let _self = this
+      let url = "/admin/getAllGridViewsOfCurrentUser"
+      let params = {
+        "gridName":this.gridViewName
+      }
+      axios.post(url,JSON.stringify(params)).then(function(response){
+        if(response.data.code==1){
+          _self.customNames=response.data.data;
+          _self.customList=response.data.data;
+
+          _self.gridviewInfo.gridviewName = _self.gridViewName
+          _self.gridviewInfo.isCustom = false
+        }
+      }).catch(function(error){
+        console.log(error)
+      })
+  },
+  getGridViewInfo(){
+    return this.gridviewInfo
+  },
+  saveCustomColumn(){
+    let _self=this;
+    if(_self.selectedName==''){
+      _self.$message({
+                      showClose: true,
+                      message:_self.$t('message.nameIsNull'),
+                      duration: 2000,
+                      type: "Error"
+                    });
+      return;
+    }
+    let mp=new Array();
+    for(let i=0;i<_self.selectedColumns.length;i++){
+      for(let j=0;j<_self.sysColumnInfo.length;j++){
+        let obj=_self.sysColumnInfo[j];
+        if(obj.attrName==_self.selectedColumns[i]){
+          mp.push(obj);
+        }
+      }
+    }
+        var m = new Map();
+        m.set('gridName',_self.gridViewName);
+        m.set('NAME',_self.selectedName);
+        m.set('items',mp);
+        _self.axios({
+            headers: {
+            "Content-Type": "application/json;charset=UTF-8"
+            },
+            method: 'post',
+            data: JSON.stringify(m),
+            url: "/admin/createOrUpdateGridView"
+        })
+            .then(function(response) {
+              if(response.data.code==1){
+                _self.$message({
+                      showClose: true,
+                      message:_self.$t('message.saveSuccess'),
+                      duration: 2000,
+                      type: "Success"
+                    });
+
+              }
+              // _self.loadGridInfo();
+              // _self.loadCustomName();
+              _self.editColumn=false;
+            })
+            .catch(function(error) {
+            console.log(error);
+            });
+  },
+
+  loadGridInfo() {
+      let _self = this;
+      _self.loading = true;
+      var m = new Map();
+      m.set("gridName", _self.gridViewName);
+      m.set("lang", _self.currentLanguage);
+      _self
+        .axios({
+          headers: {
+            "Content-Type": "application/json;charset=UTF-8"
+          },
+          method: "post",
+          data: JSON.stringify(m),
+          url: "/dc/getEcmCustomGridViewInfo"
+        })
+        .then(function(response) {
+          _self.columnList = response.data.customGridInfo;
+          _self.sysColumnInfo=response.data.sysGridInfo;
+           _self.columnList.forEach(element => {
+            if (element.visibleType == 1) {
+              _self.showFields.push(element.attrName);
+            }
+          });
+          // _self.tableHeight = "100%";
+          _self.loading = false;
+        })
+        .catch(function(error) {
+          console.log(error);
+          _self.loading = false;
+        });
+  },
+   rightChange(value, direction, movedKeys){
+     if(direction=='left'){
+       this.selectedKey=[];
+     }
+   },
+    rightCheckChange(val){
+
+      this.selectedKey=val;
+    },
+    renderContent (h, option) {
+        return h('span', {domProps: {title: option.label}}, option.label);
+    },
+    moveUp(){
+      let _self=this;
+      //选中值的下标
+      if(_self.selectedKey.length==1){
+          _self.selectedColumns.find((val, indexs, arr) => {
+
+          if (val ==_self.selectedKey[0]) {
+
+            _self.selectedIndex = indexs;
+
+          }
+
+        });
+        if (_self.selectedIndex == 0) { //当选择的项的下标为0，即第一个，则提醒没有上移的空间，选择其他项进行上移
+            _self.$message({
+                      showClose: true,
+                      message:_self.$t('message.noUpper'),
+                      duration: 2000,
+                      type: "warning"
+                    });
+           
+            return;
+
+          }
+        // 上移-改变的数组（项和下标同时改变）
+
+        let changeItem = JSON.parse(JSON.stringify(_self.selectedColumns[_self.selectedIndex- 1]));
+        _self.selectedColumns.splice(_self.selectedIndex- 1, 1);
+        _self.selectedColumns.splice(_self.selectedIndex, 0, changeItem);
+
+      }else{
+        _self.$message({
+                      showClose: true,
+                      message:_self.$t('message.oneDataOnly'),
+                      duration: 2000,
+                      type: "error"
+                    });
+      }
+        
       
-    //   document.addEventListener('click',(e)=>{
-    //       // let sp3 =document.getElementById("locationName")
-    //       let menu= document.querySelector("#menu");
-    //       if(!menu.contains(e.target)){
-    //         menu.style.display = 'none';
-    //       }
-    //       // if(menu.contains(e.target)&&menu.style.display=='none'){
-    //       //   menu.style.display = 'block';
-    //       // }else{
-    //       //   menu.style.display = 'none';
-    //       // }
-    //     })
-    // },
+    },
+    moveDown(){
+      let _self=this;
+      //选中值的下标
+      if(_self.selectedKey.length==1){
+          _self.selectedColumns.find((val, indexs, arr) => {
+
+          if (val ==_self.selectedKey[0]) {
+
+            _self.selectedIndex = indexs;
+
+          }
+
+        });
+        if (_self.selectedIndex == _self.selectedColumns.length-1) { //当选择的项的下标为0，即第一个，则提醒没有上移的空间，选择其他项进行上移
+            _self.$message({
+                      showClose: true,
+                      message: _self.$t('message.noDowner'),
+                      duration: 2000,
+                      type: "warning"
+                    });
+           
+            return;
+
+          }
+        // 上移-改变的数组（项和下标同时改变）
+
+        let changeItem = JSON.parse(JSON.stringify(_self.selectedColumns[_self.selectedIndex]));
+        _self.selectedColumns.splice(_self.selectedIndex, 1);
+        _self.selectedColumns.splice(_self.selectedIndex+1, 0, changeItem);
+
+      }else{
+        _self.$message({
+                      showClose: true,
+                      message:_self.$t('message.oneDataOnly'),
+                      duration: 2000,
+                      type: "error"
+                    });
+      }
+    },
+    showCreateName(){
+        let _self=this;
+        _self.selectedName='';
+        _self.inputColumn=true;
+    },
+    showEditColumn(){
+      let _self=this;
+      _self.editColumn=true;
+      _self.$nextTick(() => {
+        _self.leftData=_self.generateData();
+      });
+    },
+     generateData() {
+       let _self =this;
+        const data = [];
+        for (let i = 0; i < _self.sysColumnInfo.length; i++) {
+          data.push({
+            key: _self.sysColumnInfo[i].attrName,
+            label: _self.sysColumnInfo[i].label
+          });
+        }
+        return data;
+      },
     leave(){
        var menu = document.querySelector("#menu");
         menu.style.display = 'none';
@@ -262,8 +724,8 @@ export default {
     showMenu(event) { // 鼠标右击触发事件
         var menu = document.querySelector("#menu");
         menu.style.display = 'block';
-        menu.style.left = event.clientX - 0 + 'px'
-        menu.style.top = event.clientY - 80 + 'px'
+        menu.style.left = event.clientX - 250 + 'px'
+        menu.style.top = event.clientY - 120 + 'px'
         
     },
     // 查看内容
@@ -279,6 +741,7 @@ export default {
       //console.log(href);
       window.open(href.href, "_blank");
     },
+    //升版
     upgrade(item){
             let _self = this;
 
@@ -319,13 +782,31 @@ export default {
         if (_self.$refs.ShowProperty) {
           _self.$refs.ShowProperty.myItemId = indata.ID;
           _self.typeName=indata.TYPE_NAME;
+          if(_self.typeName=='相关文件'){
+              _self.$refs.ShowProperty.formName=_self.formName;
+          }else{
+              _self.$refs.ShowProperty.formName="";
+          }
           _self.$refs.ShowProperty.loadFormInfo();
+          _self.getPropertiesData();
+          if(indata.C_ITEM_TYPE=='文函' && indata.TYPE_NAME != '会议纪要'  
+            && indata.TYPE_NAME != '图文传真' && indata.TYPE_NAME != '接口信息传递单' && indata.TYPE_NAME != '接口信息答复单'){
+            _self.showRelationViewer = true;
+             setTimeout(() => {
+               if(_self.$refs.RelationViewer){
+                 _self.$refs.RelationViewer.loadData(indata);
+               }
+             },100);
+          }else{
+            _self.showRelationViewer = false;
+          }
         }
-      }, 10);
+      }, 100);
     },
     onSaved(indata) {
       if (indata == "update") {
         this.$message(this.$t("message.saveSuccess"));
+        this.loadGridData();
         this.$emit("refreshdatagrid");
       } else {
         //this.$message("新建成功!");
@@ -391,14 +872,17 @@ export default {
     handleCurrentChange(val) {
       this.currentPage = val;
       //console.log('handleCurrentChange', val);
-      this.$emit("pagechange", this.currentPage);
+      // this.$emit("pagechange", this.currentPage);
+      this.loadGridData();
     },
     // 分页 页数改变
     handleSizeChange(val) {
+      this.currentPage=1;
       this.pageSize = val;
       localStorage.setItem("docPageSize", val);
       //console.log('handleSizeChange', val);
-      this.$emit("pagesizechange", this.pageSize);
+      // this.$emit("pagesizechange", this.pageSize);
+      this.loadGridData();
     },
     sortchange(column) {
       console.log(JSON.stringify(column));
@@ -419,30 +903,50 @@ export default {
     },
     selectChange(val) {
       this.$emit("selectchange", val);
-    }
+    },
+    //row 行对象，column 列对象,cell 单元格,event 事件对象
+    cellMouseEnter (row, column, cell, event) {
+      this.$emit("cellMouseEnter",row,column,cell,event)
+    },
+    //row 行对象，column 列对象,cell 单元格,event 事件对象
+    cellMouseLeave (row, column, cell, event) {
+      this.$emit("cellMouseLeave",row,column,cell,event)
+    },
   }
 };
 </script>
-<style scoped>
+<style>
+.el-transfer-panel__item.el-checkbox{
+  margin-left: 0px;
+}
 
+</style>
+<style scoped>
+/* :root {
+   --scoll-height: (tableHeight)px;
+}
+.el-table__body-wrapper{
+  height: var(--scoll-height);
+} */
 .success {
   color:'';
 }
 .reject{
   color:red;
 }
-    #menu {
+
+    /* #menu {
         width: 120px; 
         height: 100px;
-        overflow: hidden; /*隐藏溢出的元素*/
-        box-shadow: 0 1px 1px #888, 1px 0 1px #ccc;
+        overflow: hidden; //隐藏溢出的元素 */
+        /* box-shadow: 0 1px 1px #888, 1px 0 1px #ccc;
         position: absolute; 
         display: none;
         background: #ffffff;
         z-index: 10;
-    }
+    } */
  
-    .menu {
+    /* .menu {
         width: 125px;
         height: 25px;
         line-height: 25px;
@@ -453,5 +957,23 @@ export default {
     .menu:hover {
         color: deeppink;
         text-decoration: underline;
+    }
+    .el-dropdown-link {
+      cursor: pointer;
+      color: #409EFF;
+    }
+    .hey-btn { display: inline-block; 
+    background-color: #87CEEB; 
+    color: white; 
+    text-decoration: none; 
+    font-family: 'Microsoft YaHei', sans-serif; 
+    text-align: center; 
+    border: 1px; 
+    width: 2.5rem;
+    height: 1.8rem;
+    cursor: pointer; } */
+    .el-dropdown-link {
+      cursor: pointer;
+      color: #409EFF;
     }
 </style>

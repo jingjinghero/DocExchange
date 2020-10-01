@@ -78,7 +78,7 @@
         >{{item.label}}</el-checkbox>
       </el-checkbox-group>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="columnsInfo.dialogFormVisible=false" size="medium">取 消</el-button>
+        <el-button @click="columnsInfo.dialogFormVisible=false" size="medium">{{$t('application.cancel')}}</el-button>
         <el-button type="primary" @click="confirmShow" size="medium">确定</el-button>
       </div>
     </el-dialog>
@@ -327,9 +327,9 @@ export default {
         isIndeterminate: false
       },
       innerTableHeight: window.innerHeight - 360,
-      tableHeight: window.innerHeight - 135,
-      asideHeight: window.innerHeight - 50,
-      treeHeight: window.innerHeight - 95,
+      tableHeight: window.innerHeight - 170,
+      asideHeight: window.innerHeight - 100,
+      treeHeight: window.innerHeight - 120,
       asideWidth: '100%',
       currentLanguage: "zh-cn",
       propertyVisible: false,
@@ -554,7 +554,7 @@ export default {
           _self.itemDataList = response.data.data;
           _self.itemDataListFull = response.data.data;
           _self.itemCount = response.data.pager.total;
-          _self.tableHeight= window.innerHeight - 150
+          _self.tableHeight= window.innerHeight - 170;
           //console.log(JSON.stringify(response.data.datalist));
           _self.tableLoading = false;
         });
@@ -805,7 +805,7 @@ export default {
               }
               _self.$message({
                 showClose: true,
-                message: "添加成功!",
+                message:_self.$t('message.AddSuccess'),
                 duration: 2000,
                 type: "success"
               });

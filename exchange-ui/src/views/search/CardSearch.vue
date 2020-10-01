@@ -22,7 +22,7 @@
         >{{item.label}}</el-checkbox>
       </el-checkbox-group>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="columnsInfo.dialogFormVisible=false" size="medium">取 消</el-button>
+        <el-button @click="columnsInfo.dialogFormVisible=false" size="medium">{{$t('application.cancel')}}</el-button>
         <el-button type="primary" @click="confirmShow" size="medium">确定</el-button>
       </div>
     </el-dialog>
@@ -39,8 +39,6 @@
     </el-dialog>
     <div class="navbar">
       <el-breadcrumb separator="/">
-        <el-breadcrumb-item>{{$t('menu.searchCenter')}}</el-breadcrumb-item>
-        <el-breadcrumb-item>{{$t('menu.cardSearch')}}</el-breadcrumb-item>
         <el-breadcrumb-item>{{currentCard.label}}</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
@@ -236,7 +234,7 @@ export default {
       dialogVisible: false,
       selectedItemId: "",
       propertyVisible: false,
-      tableHeight: window.innerHeight - 216,
+      tableHeight: window.innerHeight - 235,
       formLabelWidth: "120px"
     };
   },

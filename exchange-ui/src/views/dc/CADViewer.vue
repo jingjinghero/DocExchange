@@ -56,7 +56,7 @@ export default {
   },
   computed: {
         NanJingBankUrl() {
-            return "showToolBar=0&runmode=0&ze=0&OnLoadedEvent=OnFlashLoaded"
+            return "showToolBar=0&runmode=0&ze=1&OnLoadedEvent=OnFlashLoaded"
           + "&fileId=1001&fileName=test&cacheSize=1024&ocfSizeLimit=100&extData=null"
           + "&languagePage=/static/flash/cn.xml&lan=cn";
         }
@@ -97,7 +97,7 @@ export default {
     OnFlashLoaded:function() {
       let _self=this;
 			//下面这个传递参数只是参考，本样例代码中为了简化后台并没有使用.后台代码中只实现了transform.do,这个是必须的，另外一个是将图纸转化成pdf，如果不需要就可以不管它。
-			let urlData = "{\"transformPage\":\"http://localhost:8081/zisecm/dc/getFlashParam?id="+ _self.id+"&token="+sessionStorage.getItem('access-token')+"\",\"saveAsPdf\":\"./saveAsPdf.do\"}";
+			let urlData = "{\"transformPage\":\""+_self.axios.defaults.baseURL+"/dc/getFlashParam?id="+ _self.id+"&token="+sessionStorage.getItem('access-token')+"\",\"saveAsPdf\":\"./saveAsPdf.do\"}";
 			this.thisMovie('WebCAD').setDataUrl("urlData", urlData);
 			
 			//上面两行实现的是向后台发送请求，然后返回json数据，里面包含ocf文件的url地址。如果已经知道了ocf文件的url地址，则可以注释掉上面两行代码，使用下面两行代码。

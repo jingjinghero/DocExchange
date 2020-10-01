@@ -26,7 +26,31 @@
         >{{dateFormat(currentData.createTime,'')}}</el-form-item>
       </el-form>
       <el-divider content-position="left">表单信息</el-divider>
-      <router-view ref="formRouter"></router-view>
+     <!-- <taskTestForm1 
+           v-model="taskForm"
+          :formId="form.formId"
+          :docId="form.formId"
+          :taskForm="formData"
+          :istask="1"
+          :processDefinitionId="currentData.processDefinitionId"
+          :activityName="currentData.name"
+         :formEditPermision="formEditPermision"
+         @click="click"
+        ></taskTestForm1>  -->
+         <component 
+          ref="propertiesComp"
+         :is="taskName"
+            v-model="taskForm"
+            :formId="form.formId"
+            :docId="form.formId"
+            :taskForm="formData"
+            :istask="1"
+            :processDefinitionId="currentData.processDefinitionId"
+            :activityName="currentData.name"
+            :formEditPermision="formEditPermision"
+            :formEnableType ="this.$options.name"
+          @click="click" >
+         </component>
       <el-divider content-position="left">流转意见</el-divider>
       <el-table :data="taskList" border v-loading="loading" style="width: 100%">
         <el-table-column label="序号" width="65">
@@ -104,26 +128,14 @@
        </el-row>
         </div> 
       </el-form>
-              <!-- <UserSelectInput
-                v-model="borrowForm.C_REVIEWER1"
-                v-bind:inputValue="borrowForm.C_REVIEWER1"
-                roleName="leaderManage_auto"
-              ></UserSelectInput> -->
 
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogVisible = false">{{$t('application.cancel')}}</el-button>
         <el-button v-if="ecmCfgActivity.enableDelegate==true" @click="showOrHiddenDelegate()">{{delegateButton}}</el-button>
-        <el-button @click="completetask(form)">完成任务</el-button>
+         <el-button  @click="claim(currentData)">认领任务</el-button>
+       <el-button @click="completetask(form)">完成任务</el-button>
       </div>
     </el-dialog>
-    <el-container>
-      <el-header>
-        <el-breadcrumb separator="/" class="navbar">
-          <el-breadcrumb-item>工作流</el-breadcrumb-item>
-          <el-breadcrumb-item>待办工作</el-breadcrumb-item>
-        </el-breadcrumb>
-      </el-header>
-      <el-main>
         <el-table
           :data="dataList"
           border
@@ -165,8 +177,6 @@
           layout="total, sizes, prev, pager, next, jumper"
           :total="itemCount"
         ></el-pagination>
-      </el-main>
-    </el-container>
   </div>
 </template>
 
@@ -175,15 +185,24 @@
 //   contentType: "application/json"
 // });
 import UserSelectInput from "@/components/controls/UserSelectInput";
+import TaskTestForm1 from "@/components/form/TaskTestForm1.vue";
+import EditTask from "@/views/workflow/task/EditTask.vue";
+import DocViewTask from "@/views/workflow/task/DocViewTask.vue";
+import borrow1 from "@/components/form/Borrow1.vue";
 export default {
   name: "TodoTask",
   permit: 1,
    components: {
-    UserSelectInput: UserSelectInput
+    UserSelectInput: UserSelectInput,
+    TaskTestForm1: TaskTestForm1,
+    EditTask : EditTask,
+    DocViewTask : DocViewTask,
+    borrow1 : borrow1,
   },
  data() {
     return {
       currentData: [],
+      taskName: '',
       taskTableData: [],
       dataList: [],
       dataListFull: [],
@@ -196,7 +215,7 @@ export default {
       dialogVisible: false,
       dialogTitle: "查看任务",
       isCompleteSelected: false,
-      tableHeight: window.innerHeight - 110,
+      tableHeight: window.innerHeight - 120,
       delegateDialogVisible:false,
       delegateButton: "委托代理",
       ecmCfgActivity:[],
@@ -207,6 +226,8 @@ export default {
         message: "",
         delegateTaskUserId: ""
       },
+      taskForm:{},
+      formData:{},
       formLabelWidth: "120px",
       taskList: [],
       formEditPermision: 0,
@@ -222,7 +243,10 @@ export default {
     _self.refreshData();
   },
   methods: {
-    refreshData() {
+      click(value) {
+      this.taskForm = value;
+    },
+  refreshData() {
       let _self = this;
       _self.selectedItems = [];
       _self.loading = true;
@@ -279,61 +303,69 @@ export default {
       _self.itemCount = val;
       _self.loading = false;
     },
-    completetask(indata) {
+     getFormdataMap() {
+      let _self = this;
+      return  _self.taskForm;
+    },
+   completetask(indata) {
       let _self = this;
       if (_self.isCompleteSelected) {
         _self.form.taskId = [];
-        _self.form.fromId = [];
+        _self.form.formId = [];
         for (let i = 0; i < _self.selectedItems.length; i++) {
           _self.form.taskId[i] = _self.selectedItems[i].id;
         }
       }
-
-      // _self.loading = true;
-      // if (_self.formEditPermision == 1) {
-        // let a = _self.$refs.formRouter.validateBorrowForm(_self);
-        // if (typeof a == "undefined") {
-        //   _self.loading = false;
-        //   return;
-        // }
-
-
-      //   axios
-      //     .post("/dc/saveBorrowForm", new Map())
-      //     .then(function(response) {
-      //       axios
-      //         .post("/workflow/completeTask", JSON.stringify(_self.form))
-      //         .then(function(response) {
-      //           _self.dialogVisible = false;
-      //           _self.refreshData();
-      //           _self.$message("完成任务成功!");
-      //           _self.$emit("refreshcount");
-      //           _self.loading = false;
-      //         })
-      //         .catch(function(error) {
-      //           console.log(error);
-      //           _self.loading = false;
-      //         });
-      //     })
-      //     .catch(function(error) {
-      //       console.log(error);
-      //       _self.loading = false;
-      //     });
-      // } else {
+      let  docMap=_self.getFormdataMap();
+      _self.loading = true;
+      if (_self.formEditPermision == 1) {
+        switch (_self.currentData.processDefinitionId.split(":")[0]) {
+        case "BianJiaoShenPi":
+          _self.$refs.propertiesComp.$refs.ShowProperty.saveItem();
+          break;
+        case "process_borrow":
+          _self.$refs.propertiesComp.saveCurrentForm();
+          break;
+        }
+          // if(_self.currentData.processDefinitionId.split(":")[0]=="BianJiaoShenPi"){
+            let  docMap=_self.getFormdataMap();
+              axios.post("/dc/saveDocument", docMap).then(function(response) {
+                  _self.completetaskFinal(_self);
+                }).catch(function(error) {
+                  console.log(error);
+                  _self.loading = false;
+                });
+          // }else{
+          //     axios
+          //       .post("/dc/saveBorrowForm", new Map())
+          //       .then(function(response) {
+          //         _self.completetaskFinal(_self);
+          //       })
+          //       .catch(function(error) {
+          //         console.log(error);
+          //         _self.loading = false;
+          //       });
+          // }
+      } else {
+            _self.completetaskFinal(_self);
+      }
+    },
+    completetaskFinal(indata){
+      let _self=indata;
         axios
-          .post("/workflow/completeTask", JSON.stringify(_self.form))
-          .then(function(response) {
-            _self.loading = false;
-            _self.dialogVisible = false;
-            _self.refreshData();
-            _self.$message("完成任务成功!");
-            _self.$emit("refreshcount");
-          })
-          .catch(function(error) {
-            _self.loading = false;
-            console.log(error);
-          });
-      // }
+              .post("/workflow/completeTask", JSON.stringify(_self.form))
+              .then(function(response) {
+                _self.dialogVisible = false;
+                _self.refreshData();
+                _self.$message("完成任务成功!");
+                _self.$emit("refreshcount");
+                _self.loading = false;
+              })
+              .catch(function(error) {
+                console.log(error);
+                _self.loading = false;
+              });
+
     },
     delegateTask(indata) {
        let _self = this;
@@ -347,6 +379,20 @@ export default {
             _self.refreshData();
             _self.$message("委托代理成功!");
             _self.$emit("refreshcount");
+          })
+          .catch(function(error) {
+            _self.loading = false;
+            console.log(error);
+          });
+    },
+   claim(indata) {
+       let _self = this;
+       _self.loading = true;
+        axios
+          .post("/workflow/claim", JSON.stringify(indata))
+          .then(function(response) {
+            _self.loading = false;
+            _self.$message("认领成功!");
           })
           .catch(function(error) {
             _self.loading = false;
@@ -386,11 +432,15 @@ showOrHiddenDelegate(){
       _self.form.formId = indata.formId;
       _self.dialogVisible = true;
       _self.taskTableData = [];
-      if ("借阅驳回" == indata.name) {
+      if(indata.name == '借阅驳回' || indata.name == '编写'){
         _self.formEditPermision = 1;
+      }else{
+        _self.formEditPermision = 0;
+      }
+     if ("借阅驳回" == indata.name) {
         _self.rejectButton = "结束";
       } else {
-        _self.formEditPermision = 0;
+        // _self.formEditPermision = 0;
         _self.rejectButton = "驳回";
       }
      //动态获取表单 显示查看或编辑页面 
@@ -401,19 +451,35 @@ showOrHiddenDelegate(){
         .post("/workflow/getEcmCfgActivity", JSON.stringify(m))
         .then(function(response) {
           _self.ecmCfgActivity= response.data.data;
-          _self.$router.replace({
-              // path: response.data.data.component.url,
-              path: "/borrow1",
-              query: {
-                tabledata: _self.taskTableData,
-                borrowFormId: _self.form.formId,
-                istask: 1,
-                processDefinitionId: _self.currentData.processDefinitionId,
-                activityName: _self.currentData.name,
-                formEditPermision: _self.formEditPermision
+          _self.taskName = response.data.data.componentName;
+          // _self.$router.replace({
+          //     // path: response.data.data.component.url,
+          //     path: "/taskTestForm1",
+          //     query: {
+          //       tabledata: _self.taskTableData,
+          //       formId: _self.form.formId,
+          //       docId: indata.docId,
+          //       istask: 1,
+          //       processDefinitionId: _self.currentData.processDefinitionId,
+          //       activityName: _self.currentData.name,
+          //       formEditPermision: _self.formEditPermision
+          //     }
+          //   });
+          axios.post("/dc/getDocumentById", indata.formId).then(function(response) {
+            let result = response.data;
+            if (result.code == 1) {
+              _self.formData = result.data;
+            }
+          });
+          axios
+            .post("/dc/getFormRelateDocument", indata.formId)
+            .then(function(response) {
+              let result = response.data;
+              if (result.code == 1) {
+                _self.tabledata = result.data;
               }
             });
-            var m = new Map();
+          var m = new Map();
             m.set("processInstanceId", indata.processInstanceId);
             axios
               .post("/workflow/getWorkflowTask", JSON.stringify(m))

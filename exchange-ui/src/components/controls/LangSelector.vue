@@ -24,7 +24,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button @click="dialogVisible = false">{{$t('application.cancel')}}</el-button>
         <el-button type="primary" @click="addItem(form)">确 定</el-button>
       </div>
     </el-dialog>
@@ -44,7 +44,7 @@
               icon="el-icon-edit"
               plain
               @click="dialogVisible = true"
-            >新建</el-button>
+            >{{$t('application.new')}}</el-button>
         </el-col>
       </el-row>
       <el-table
@@ -90,7 +90,7 @@
               size="medium"
               icon="edit"
               @click="handleSelect(scope.row)"
-            >选择</el-button>
+            >{{$t('application.select')}}</el-button>
               <el-button
                 :plain="true"
                 type="info"
@@ -120,11 +120,11 @@
             ></el-pagination>
     </el-dialog>
     <el-col :span="18">
-      <el-input type="text" placeholder="请选择组件" v-model="inputValue"></el-input>
+      <el-input type="text" placeholder="请选择组件" v-model="inputValue" @change="valueChange"></el-input>
       <input value="value1" type="hidden" />
     </el-col>
     <el-col :span="4">
-      <el-button icon="el-icon-s-unfold" @click="handleLangShowDialog">选择</el-button>
+      <el-button icon="el-icon-s-unfold" @click="handleLangShowDialog">{{$t('application.select')}}</el-button>
     </el-col>
   </el-container>
   </div>
@@ -178,6 +178,10 @@ export default {
     _self.refreshData();
   },
   methods: {
+    valueChange(){
+      this.$emit("change", this.inputValue);
+      // console.log("change:" + this.inputValue);
+    },
     //获取选人框体数据
     refreshData() {
       let _self = this;

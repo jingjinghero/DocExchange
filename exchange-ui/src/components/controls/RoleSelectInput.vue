@@ -17,14 +17,14 @@
             </el-col>
             <el-col :span="2">
               <el-select
-                v-model="groupType" :placeholder="$t('application.pleaseSelect')" style="display:block;">
+                v-model="groupType" :placeholder="$t('application.pleaseSelect')" @change="refreshData" style="display:block;">
                 <div v-for="(item,index) in groupTypes">
                   <el-option :label="item.name" :value="item.value" :key="index"></el-option>
                 </div>
               </el-select>
             </el-col>
             <el-col :span="20">
-              <el-input :placeholder="$t('application.placeholderSearch')" @keyup.enter.native="search" v-model="findValue"></el-input>
+              <el-input :placeholder="$t('application.placeholderSearch')" @keyup.enter.native="refreshData" v-model="findValue"></el-input>
             </el-col>
           </el-row>
         </el-header>
@@ -34,14 +34,17 @@
               <el-table
                 height="320"
                 :data="dataList"
+                ref="leftTable"
                 stripe
                 border
                 size="mini"
+                @row-click="leftClick"
+                @row-dblclick="leftDbClick"
                 @selection-change="handleSelectionChange"
               >
                 <el-table-column type="selection" width="60"></el-table-column>
-                <el-table-column prop="name" :label="$t('application.name')" width="160"></el-table-column>
-                <el-table-column prop="description" :label="$t('application.description')"></el-table-column>
+                <el-table-column prop="name" :label="$t('field.name')" width="160"></el-table-column>
+                <el-table-column prop="description" :label="$t('field.description')"></el-table-column>
               </el-table>
               <el-pagination
                     @size-change="handleSizeChange"
@@ -75,14 +78,17 @@
               <el-table
                 height="320"
                 :data="rightList"
+                ref="rightTable"
                 stripe
                 border
                 size="mini"
+                 @row-click="rightClick"
+                @row-dblclick="rightDbClick"
                 @selection-change="handleRightSelectionChange"
               >
                 <el-table-column type="selection" width="60"></el-table-column>
-                <el-table-column prop="name" :label="$t('application.name')" width="160"></el-table-column>
-                <el-table-column prop="description" :label="$t('application.description')"></el-table-column>
+                <el-table-column prop="name" :label="$t('field.name')" width="160"></el-table-column>
+                <el-table-column prop="description" :label="$t('field.description')"></el-table-column>
               </el-table>
             </el-col>
           </el-row>
@@ -96,7 +102,7 @@
         </el-footer>
       </div>
     </el-dialog>
-    <el-col :span="19">
+    <el-col :span="19" v-if="showInputText">
       <el-input type="text" :placeholder="$t('application.selectRole')" readonly="readonly" v-model="inputValue"></el-input>
       <input value="value1" type="hidden" />
     </el-col>
@@ -157,50 +163,17 @@ export default {
       type: Boolean,
       default: false
     },
+    showInputText: {
+      type: Boolean,
+      default: true
+    },
     maxCount: {
       type: Number,
       default: 50
     }
   },
   methods: {
-    refreshData() {
-      var m = new Map();
-      let _self = this;
-      m.set("groupType", this.groupType);
-      m.set("id", "");
-      m.set("condition", "name like '%" + this.findValue + "%' or description like '%" + this.findValue + "%'");
-      m.set("pageIndex", _self.currentPage-1);
-      m.set("pageSize", _self.pageSize);
-      console.log(_self.isRepeat);
-      _self
-        .axios({
-          headers: {
-            "Content-Type": "application/json;charset=UTF-8"
-          },
-          method: "post",
-          data: m,
-          url: "/group/getGroups"
-        })
-        .then(function(response) {
-          _self.dataList = response.data.data;
-          _self.itemCount = response.data.pager.total;
-          if(_self.inputValue ){
-            var userNameArr = _self.inputValue.split(";");
-            for (var i = 0; i < userNameArr.length; i++) {
-              var item = userNameArr[i];
-              _self.dataList.forEach(function(val, index, arr) {
-                if (item == val.name) {
-                  arr.splice(index, 1);
-                  _self.rightList.push(val);
-                }
-              });
-            }
-          }
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
-    },
+    
     // 分页 页数改变
     handleSizeChange(val) {
       this.pageSize = val;
@@ -212,7 +185,7 @@ export default {
       this.currentPage = val;
       this.search();
     },
-    search() {
+    refreshData() {
       let _self = this;
       for (var i = 0; i < _self.rightList.length; i++) {
         _self.rightListId[i] = _self.rightList[i].id;
@@ -262,6 +235,7 @@ export default {
         _self.rightNameList.length - 1
       );
       _self.$emit("change", _self.rightNameList);
+      _self.$emit("onRoleSelected", _self.rightNameList);
       _self.rightNameList = "";
       _self.visible = false;
     },
@@ -280,6 +254,23 @@ export default {
           this.tranList2.push(selection[i]);
         }
       }
+    },
+     leftClick(row){
+      this.$refs.leftTable.toggleRowSelection(row);
+    },
+    rightClick(row){
+      this.$refs.rightTable.toggleRowSelection(row);
+    },
+    leftDbClick(row){
+      this.tranList = [];
+      this.tranList.push(row);
+      this.addToRight();
+    },
+    rightDbClick(row){
+      this.tranList2 = [];
+      this.tranList2.push(row);
+      this.addToLeft();
+      this.refreshData();
     },
     addToRight() {
       for (var i = 0; i < this.tranList.length; i++) {

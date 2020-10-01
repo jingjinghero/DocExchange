@@ -165,7 +165,8 @@ export const adminRouter =
   {
     meta: {
       requireAuth: true,
-      permit: 5
+      permit: 5,
+      title: 'defAttribute'
     },
     path: '/managercenter/defattrmanager',
     component: () => import('@/views/admin/DefAttrManager.vue'),
@@ -220,6 +221,16 @@ export const adminRouter =
     path: '/managercenter/cardsearchmanager',
     component: () => import('@/views/admin/CardSearchManager.vue'),
     name: '卡片查询管理'
+  },
+  {
+    meta: {
+      requireAuth: true,
+      permit: 9,
+      title: 'relationFileTypeSetting'
+    },
+    path: '/managercenter/uirelationmanager',
+    component: () => import('@/views/admin/UiRelation/'),
+    name: '相关类型设置'
   },
   {
     meta: {

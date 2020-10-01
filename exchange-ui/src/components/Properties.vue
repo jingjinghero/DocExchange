@@ -36,24 +36,27 @@
         </el-col>
       </template>
     </el-row>
-      <el-form-item style="float:left"  label="文件类型" >{{typeName}}</el-form-item>
-      <div v-if="itemId  == undefined || itemId == 0 " style="float:left;margin-left:120px;">
+    <el-row>
+      <el-form-item style="float:left"  :label="$t('application.fileType')" >{{typeName}}</el-form-item>
+      <div v-if="itemId  == undefined || itemId == 0 " style="float:left;margin-left:120px;" class="topbar-button">
         <el-upload
         :limit="1"
         :file-list="fileList" 
         action=""
         :on-change="handleChange"
         :auto-upload="false"
-        :multiple="false">
-        <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+        :multiple="false" >
+        <el-button slot="trigger"  size="small" type="primary">{{$t('application.selectFile')}}</el-button>
         </el-upload>
       </div>
-      <div>
-        <el-button type="primary" @click="download()">编辑文件</el-button>
+      <div class="topbar-button">
+        <el-button type="primary"  size="small" @click="download()">编辑文件</el-button>
       </div>
+    </el-row>
     </el-form>
+    
     <div slot="footer" class="dialog-footer">
-        <el-button>取 消</el-button>
+        <el-button>{{$t('application.cancel')}}</el-button>
         <el-button type="primary" @click="saveItem()">保存</el-button>
       </div>
   </div>
@@ -164,7 +167,7 @@ export default {
     {
       let _self = this;
       _self.loading = true;
-      if(_self.myItemId!=undefined &&_self.myItemId != '')
+      if(_self.myItemId!=undefined && _self.myItemId != '')
       {
         _self.myTypeName = "";
       }
@@ -237,7 +240,7 @@ export default {
           }
         }
       }
-      if(_self.myItemId!='')
+      if(_self.myItemId != undefined && _self.myItemId!='')
       {
         m.set('ID',_self.myItemId);
       }
@@ -254,10 +257,7 @@ export default {
         //console.log(_self.file);
         formdata.append("uploadFile",_self.file.raw);
       }
-      // console.log(JSON.stringify(m));
-      if(_self.myItemId=='')
-      {
-        axios.post("/dc/newDocument",formdata,{
+      axios.post("/dc/createOrUpdateDoc",formdata,{
             'Content-Type': 'multipart/form-data'
           })
         .then(function(response) {
@@ -267,43 +267,64 @@ export default {
             _self.$message("保存成功！")
           }
           else{
-             _self.$message("新建失败!");
+             _self.$message(_self.$t('message.saveFailured'));
           }
         })
         .catch(function(error) {
-          _self.$message("新建失败!");
+          _self.$message(_self.$t('message.saveFailured'));
           console.log(error);
         });
-      }
-      else
-      {
-        if(_self.permit<5){
-          _self.$message("您没有修改当前文件属性的权限!");
-          return ;
-        }
-        if(_self.clientPermission && _self.clientPermission<4){
-          if(m.get("STATUS")&&(m.get("STATUS")=="利用"||m.get("STATUS")=="销毁")){
-            _self.$message("请先下架后再修改属性!");
-            return ;
-          }
-        }
-        axios.post("/dc/saveDocument",JSON.stringify(m))
-        .then(function(response) {
-          let code = response.data.code;
-          //console.log(JSON.stringify(response));
-          if(code==1){
-             _self.$message("保存成功！")
-            // _self.$emit('onSaved','update');
-          }
-          else{
-             _self.$message("保存失败!");
-          }
-        })
-        .catch(function(error) {
-          _self.$message("保存失败!");
-          console.log(error);
-        });
-      }
+
+      // console.log(JSON.stringify(m));
+      // if(_self.myItemId!=undefined || _self.myItemId=='')
+      // {
+      //   axios.post("/dc/newDocument",formdata,{
+      //       'Content-Type': 'multipart/form-data'
+      //     })
+      //   .then(function(response) {
+      //     let code = response.data.code;
+      //     //console.log(JSON.stringify(response));
+      //     if(code==1){
+      //       _self.$message("保存成功！")
+      //     }
+      //     else{
+      //        _self.$message(_self.$t('message.newFailured'));
+      //     }
+      //   })
+      //   .catch(function(error) {
+      //     _self.$message(_self.$t('message.newFailured'));
+      //     console.log(error);
+      //   });
+      // }
+      // else
+      // {
+      //   if(_self.permit<5){
+      //     _self.$message("您没有修改当前文件属性的权限!");
+      //     return ;
+      //   }
+      //   if(_self.clientPermission && _self.clientPermission<4){
+      //     if(m.get("STATUS")&&(m.get("STATUS")=="利用"||m.get("STATUS")=="销毁")){
+      //       _self.$message("请先下架后再修改属性!");
+      //       return ;
+      //     }
+      //   }
+      //   axios.post("/dc/saveDocument",JSON.stringify(m))
+      //   .then(function(response) {
+      //     let code = response.data.code;
+      //     //console.log(JSON.stringify(response));
+      //     if(code==1){
+      //        _self.$message("保存成功！")
+      //       // _self.$emit('onSaved','update');
+      //     }
+      //     else{
+      //        _self.$message(_self.$t('message.saveFailured'));
+      //     }
+      //   })
+      //   .catch(function(error) {
+      //     _self.$message(_self.$t('message.saveFailured'));
+      //     console.log(error);
+      //   });
+      // }
     },
     bindData(indata)
     {

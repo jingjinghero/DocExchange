@@ -11,7 +11,7 @@
     >
       <div>
         <el-header>
-          <el-input :placeholder="$t('application.placeholderSearch')" @keyup.enter.native="search" v-model="findValue"></el-input>
+          <el-input :placeholder="$t('application.placeholderSearch')" @keyup.enter.native="refreshData" v-model="findValue"></el-input>
         </el-header>
         <el-main>
           <el-row>
@@ -19,9 +19,12 @@
               <el-table
                 height="250"
                 :data="dataList"
+                ref="leftTable"
                 stripe
                 border
                 size="mini"
+                 @row-dblclick="leftDbClick"
+                 @row-click="leftClick"
                 @selection-change="handleSelectionChange"
               >
                 <el-table-column type="selection" width="60"></el-table-column>
@@ -51,9 +54,12 @@
               <el-table
                 height="250"
                 :data="rightList"
+                ref="rightTable"
                 stripe
                 border
                 size="mini"
+                @row-click="rightClick"
+                @row-dblclick="rightDbClick"
                 @selection-change="handleRightSelectionChange"
               >
                 <el-table-column type="selection" width="60"></el-table-column>
@@ -77,7 +83,7 @@
       <input value="value1" type="hidden" />
     </el-col>
     <el-col :span="4">
-      <el-button icon="el-icon-user-solid" @click="clickShowDialog">{{$t('application.select')}}</el-button>
+      <el-button :disabled="buttonType" icon="el-icon-user-solid" @click="clickShowDialog">{{$t('application.select')}}</el-button>
     </el-col>
   </el-container>
 </template>
@@ -121,6 +127,10 @@ export default {
     noGroup: {
       type: String,
       noGroup: "0"
+    },
+    buttonType:{
+      type: Boolean,
+      default:false
     }
   },
   // computed:{
@@ -136,39 +146,11 @@ export default {
   // 	}
   // },
   methods: {
-    refreshData() {
-      let _self = this;
-      var m = new Map();
-      m.set("noGroup", _self.noGroup);
-      m.set("condition", "name like '%" + this.findValue + "%'");
-      m.set("pageIndex", 0);
-      m.set("pageSize", 50);
-      m.set("roleName", _self.roleName);    
-      axios.post("/admin/getUsersByGroupName",m)
-        .then(function(response) {
-          _self.dataList = response.data.data;
-          if(_self.inputValue ){
-            var userNameArr = _self.inputValue.split(";");
-            for (var i = 0; i < userNameArr.length; i++) {
-              var item = userNameArr[i];
-              _self.dataList.forEach(function(val, index, arr) {
-                if (item == val.name) {
-                  arr.splice(index, 1);
-                  _self.rightList.push(val);
-                }
-              });
-            }
-          }
-          
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
-    },
+  
     clickShowDialog() {
       this.visible = true;
     },
-    search() {
+    refreshData() {
       let _self = this;
       for (var i = 0; i < _self.rightList.length; i++) {
         _self.rightListId[i] = _self.rightList[i].id;
@@ -223,6 +205,23 @@ export default {
           this.tranList2.push(selection[i]);
         }
       }
+    },
+    leftClick(row){
+      this.$refs.leftTable.toggleRowSelection(row);
+    },
+    rightClick(row){
+      this.$refs.rightTable.toggleRowSelection(row);
+    },
+    leftDbClick(row){
+      this.tranList = [];
+      this.tranList.push(row);
+      this.addToRight();
+    },
+    rightDbClick(row){
+      this.tranList2 = [];
+      this.tranList2.push(row);
+      this.addToLeft();
+      this.refreshData();
     },
     addToRight() {
       for (var i = 0; i < this.tranList.length; i++) {

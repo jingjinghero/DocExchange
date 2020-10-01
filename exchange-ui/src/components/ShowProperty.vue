@@ -1,7 +1,11 @@
 <template>
 <div>
     <el-form label-position="right" label-width="100px">
-      <!--
+       <!--
+      <el-row>
+        <el-form-item style="float:left"  :label="$t('application.type')" >{{typeName}}</el-form-item>
+      </el-row>
+     
       <div>
         <el-button :plain="true" type="primary" size="small" icon="edit" @click="loaddata()">刷新数据</el-button>
       </div>
@@ -9,35 +13,40 @@
       <el-row>
         <!-- <el-col style="padding:3px;text-align:left">
           <el-form-item>{{typeName}}</el-form-item></el-col> -->
-        
-      <template v-for="(item,itemIndex) in dataList">
-        <el-col v-show="itemId || (!itemId && !item.readOnly)" :span="showCellValue(item)" v-bind:key="itemIndex" style="text-align:left;">
-          <el-form-item :hidden="item.isHide" :label="item.label" :rules="[{required:item.required,message:'必填',trigger:'blur'}]">
-                <el-input v-if="item.controlType=='TextBox'" type="text" :name="item.attrName" v-model="item.defaultValue" :disabled="item.readOnly"></el-input>
-                <el-input v-if="item.controlType=='TextArea'" type="textarea" :name="item.attrName" v-model="item.defaultValue" :disabled="item.readOnly"></el-input>
-                <el-input v-else-if="item.controlType=='Integer'" type="number" :name="item.attrName" v-model="item.defaultValue" :disabled="item.readOnly"></el-input>
-                <el-checkbox v-else-if="item.controlType=='Boolean'"  :name="item.attrName" v-model="item.defaultValue" :disabled="item.readOnly"></el-checkbox>
-                <template v-else-if="item.controlType=='Date'">
-                  <span v-if="item.readOnly" >{{datetimeFormat(item.defaultValue)}}</span>
-                  <el-date-picker v-else :name="item.attrName" v-model="item.defaultValue" type="date" placeholder="选择日期" style="display:block;" value-format="yyyy-MM-dd HH:mm:ss" :readonly="item.readOnly"></el-date-picker>
-                </template>
-                <el-select  :name="item.attrName"
-                v-else-if="item.controlType=='Select' || item.controlType=='ValueSelect' || item.controlType=='Department' || item.controlType=='SQLSelect'" 
-                v-model="item.defaultValue" :placeholder="'请选择'+item.label" :disabled="item.readOnly" :multiple="item.isRepeat" style="display:block;"
-                @change="((val)=>{onSelectChange(val, item)})" >
-                      <div v-for="(name,nameIndex) in item.validValues" :key="nameIndex+'N'">
-                        <el-option :label="name" :value="name" :key="nameIndex"></el-option>
-                      </div>
-                  </el-select>
-                <UserSelectInput v-else-if="item.controlType=='UserSelect'" v-model="item.defaultValue" v-bind:inputValue="item.defaultValue" v-bind:isRepeat="item.isRepeat"></UserSelectInput>
-                <!-- <UserSelectInput v-else-if="item.controlType=='UserSelect'" v-model="item.defaultValue"></UserSelectInput> -->
-                <AddCondition v-if="item.controlType=='advSearch'" v-model="item.defaultValue" v-bind:inputValue="item.defaultValue" ></AddCondition>
-          </el-form-item>
-        </el-col>
-      </template>
+        <el-collapse v-model="activeNames">
+          <el-collapse-item v-for="(citem,cindex) in dataList" :title="citem.label" :name="citem.label"  :id="citem.label" :key="cindex"> 
+          <template v-for="(item,itemIndex) in citem.ecmFormItems">
+            <el-col :span="showCellValue(item)" v-bind:key="itemIndex" style="text-align:left;">
+              <el-form-item :hidden="item.isHide" :label="item.label" :rules="[{required:validateValue(item),message:$t('application.requiredInput'),trigger:'blur'}]" :label-width="formLabelWidth">
+                    <el-input v-if="item.controlType=='TextBox' && !item.isRepeat" type="text" :name="item.attrName" v-model="item.defaultValue" :disabled="item.readOnly"></el-input>
+                    <MultiInput v-if="item.controlType=='TextBox' && item.isRepeat" v-model="item.defaultValue"></MultiInput>
+                    <el-input v-if="item.controlType=='TextArea'" type="textarea" :name="item.attrName" v-model="item.defaultValue" :disabled="item.readOnly"></el-input>
+                    <el-input v-else-if="item.controlType=='Integer'" :min="0" type="number" :name="item.attrName" v-model="item.defaultValue" :disabled="item.readOnly"></el-input>
+                    <el-checkbox v-else-if="item.controlType=='Boolean'"  :name="item.attrName" v-model="item.defaultValue" :disabled="item.readOnly"></el-checkbox>
+                    <template v-else-if="item.controlType=='Date'">
+                      <span v-if="item.readOnly" >{{datetimeFormat(item.defaultValue)}}</span>
+                      <el-date-picker v-else :name="item.attrName" v-model="item.defaultValue" type="date" :placeholder="$t('application.selectDate')" style="display:block;" value-format="yyyy-MM-dd HH:mm:ss" :readonly="item.readOnly"></el-date-picker>
+                    </template>
+                    <el-select  :name="item.attrName"
+                    v-else-if="item.controlType=='Select' || item.controlType=='ValueSelect' || item.controlType=='Department' || item.controlType=='SQLSelect'" 
+                    v-model="item.defaultValue" :placeholder="$t('application.pleaseSelect')+item.label" :disabled="item.readOnly" :multiple="item.isRepeat" style="display:block;"
+                    @change="((val)=>{onSelectChange(val, item)})" >
+                          <div v-for="(name,nameIndex) in item.validValues" :key="nameIndex+'N'">
+                            <el-option :label="name" :value="name" :key="nameIndex"></el-option>
+                          </div>
+                      </el-select>
+                    <UserSelectInput v-else-if="item.controlType=='UserSelect'" v-model="item.defaultValue" v-bind:inputValue="item.defaultValue" v-bind:isRepeat="item.isRepeat"></UserSelectInput>
+                    <!-- <UserSelectInput v-else-if="item.controlType=='UserSelect'" v-model="item.defaultValue"></UserSelectInput> 
+                    <AddCondition v-if="item.controlType=='advSearch'" v-model="item.defaultValue" v-bind:inputValue="item.defaultValue" ></AddCondition>-->
+              </el-form-item>
+            </el-col>
+          </template>
+          </el-collapse-item>
+        </el-collapse>
     </el-row>
-      <el-form-item style="float:left"  label="文件类型" >{{typeName}}</el-form-item>
-      <div v-if="itemId  == undefined || itemId == 0 " style="float:left;margin-left:120px;">
+    <el-row>
+      
+      <div v-if="(itemId  == undefined || itemId == '0' || itemId == '') && showUploadFile " style="float:left;margin-left:120px;">
         <el-upload
         :limit="1"
         :file-list="fileList" 
@@ -45,10 +54,11 @@
         :on-change="handleChange"
         :auto-upload="false"
         :multiple="false">
-        <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+        <el-button slot="trigger" size="small" type="primary">{{$t('application.selectFile')}}</el-button>
         </el-upload>
         
       </div>
+    </el-row>
     </el-form>
   </div>
 </template>
@@ -56,18 +66,21 @@
 <script type="text/javascript">
 import UserSelectInput from '@/components/controls/UserSelectInput'
 import AddCondition from '@/views/record/AddCondition'
+import MultiInput from '@/components/ecm-multi-input'
 
 export default {
   name: "ShowProperty",
   components: {
-    UserSelectInput:UserSelectInput,
-    AddCondition:AddCondition
+    UserSelectInput : UserSelectInput,
+    AddCondition : AddCondition,
+    MultiInput : MultiInput
   },
   data() {
     return {
-      tableHeight: window.innerHeight - 98,
+      formLabelWidth: "110px",
       currentLanguage: "zh-cn",
       permit:5,
+      activeNames:'',
       dataList: {
         rowdata: {
           parentId:"",
@@ -80,7 +93,8 @@ export default {
           widthType: "2",
           validValues:[],
           orderIndex: 1,
-          defaultValue: ""
+          defaultValue: "",
+          validatePolicy:""
         }
       },
       file:"",
@@ -88,13 +102,18 @@ export default {
       myItemId: this.itemId,
       myTypeName: this.typeName,
       myFolderId: this.folderId,
+      formName:"",
       parentDocId:'',
-      clientPermission: 1
+      clientPermission: 1,
+      mainObject:[],
+      mainSubRelation:[]
     };
   },
   mounted() {
     this.currentLanguage = localStorage.getItem("localeLanguage") || "zh-cn";
-    this.loadFormInfo();
+    if( this.mainObject == null || this.mainObject.length ==0){
+      this.loadFormInfo();
+    }
     this.clientPermission = sessionStorage.getItem(
         "access-clientPermission"
       );
@@ -103,9 +122,61 @@ export default {
     itemId: {type:String},
     typeName: {type:String},
     folderId: {type:String},
-    folderPath:{type:String}
+    folderPath:{type:String},
+    showUploadFile: {type:Boolean, default:true}
   },
   methods: {
+    setMainObject(obj){
+      this.mainObject=obj;
+    },
+    setMainSubRelation(obj){
+      this.mainSubRelation=obj;
+    },
+    validateValueByPolicy(policy){
+        if(policy != null && policy != ""){
+          var p = policy.split(";");
+          if(p[0] != ""){
+            var p1 = p[0].split(":");
+            if(this.getValueByAttr(p1[0]) == p1[1]){
+              return true;
+            }
+          }else{
+            return true;
+          }
+        }
+        return false;
+    },
+    validateValue(itemData){
+      if(itemData.required){
+        if(itemData.validatePolicy != null && itemData.validatePolicy != ""){
+          var p = itemData.validatePolicy.split(";");
+          if(p[0] != ""){
+            var p1 = p[0].split(":");
+            if(this.getValueByAttr(p1[0]) == p1[1]){
+              return true;
+            }
+          }else{
+            return true;
+          }
+        }else{
+          return true;
+        }
+      }
+      return false;
+    },
+    getValueByAttr(attrName){
+      var c;
+      for(c in this.dataList){
+        let dataRows = this.dataList[c].ecmFormItems;
+        var i;
+        for (i in dataRows) {
+          if(dataRows[i].attrName == attrName){
+            return dataRows[i].defaultValue;
+          }
+        }
+      }
+      return "";
+    },
     showCellValue(item){
       //console.log(item);
       var v = 24/ parseInt(item.widthType);
@@ -158,12 +229,17 @@ export default {
       }
       var m = new Map();
       m.set('itemInfo',_self.myItemId+_self.myTypeName);//ID 或类型
+      m.set('formName',_self.formName);
       m.set('lang',_self.getLang());
       //console.log(_self.itemId+","+_self.myItemId+","+_self.myTypeName+","+_self.folderId);
-      axios.post("/dc/getFormItem",JSON.stringify(m))
+      axios.post("/dc/getFormClassifications",JSON.stringify(m))
         .then(function(response) {
-
+         
           _self.bindData(response.data.data);
+          if(response.data.data[0]){
+             //console.log(JSON.stringify(response.data.data[0].label));
+            _self.activeNames = [response.data.data[0].label];
+          }
           _self.file=[];
           _self.fileList = [];
           //console.log(JSON.stringify(response.data.data));
@@ -178,50 +254,94 @@ export default {
     validFormValue()
     {
       let _self = this;
-      let dataRows = _self.dataList;
-      var i;
       var ret = true;
       var msg = "";
-      for (i in dataRows) {
-        if(dataRows[i].required && (dataRows[i].defaultValue==null||dataRows[i].defaultValue==""))
-        {
-          msg += "["+dataRows[i].label+"] ";
-          ret = false;
+      var c;
+      for(c in _self.dataList){
+        let dataRows = _self.dataList[c].ecmFormItems;
+        var i;
+        for (i in dataRows) {
+          // if(dataRows[i].required){
+          //    console.log(dataRows[i].label+":"+dataRows[i].defaultValue+":"+typeof(dataRows[i].defaultValue));
+          // }
+          if(_self.validateValue(dataRows[i]) && (typeof(dataRows[i].defaultValue)==='undefined' || dataRows[i].defaultValue==null||dataRows[i].defaultValue==""))
+          {
+            msg += "["+dataRows[i].label+"] ";
+            ret = false;
+          }else if(dataRows[i].validatePolicy != null && dataRows[i].validatePolicy != ""){
+            if((_self.myItemId == null || _self.myItemId =="") && dataRows[i].validatePolicy.indexOf(";")>-1){
+              let p = dataRows[i].validatePolicy.split(";")[1];
+              if(_self.validateValueByPolicy(dataRows[i].validatePolicy.split(";")[0])){
+                let fun = p.split(":");
+                if(p.indexOf("now")>-1){
+                  let dt = new Date();
+                  if(p.indexOf(">=") > -1){
+                    if(_self.validateInputDate(dt, dataRows[i].defaultValue,fun[2])<0){
+                      msg += "["+dataRows[i].label+"] 必需大于等于当前日期+" + fun[2]+"天";
+                      ret = false;
+                    }
+                  }else if(p.indexOf("<=") > -1){
+                    if(_self.validateInputDate(dt,dataRows[i].defaultValue,fun[2])>0){
+                      msg += "["+dataRows[i].label+"] 必需小于等于当前日期+" + fun[2] + "天";
+                      ret = false;
+                    }
+                  }else if(p.indexOf(">") > -1){
+                    if(_self.validateInputDate(dt,dataRows[i].defaultValue,fun[2])>=0){
+                      msg += "["+dataRows[i].label+"] 必需大于当前日期+" + fun[2]+"天";
+                      ret = false;
+                    }
+                  }else if(p.indexOf("<") > -1){
+                    if(_self.validateInputDate(dt,dataRows[i].defaultValue,fun[2])>=0){
+                      msg += "["+dataRows[i].label+"] 必需小于当前日期+" + fun[2]+"天";
+                      ret = false;
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
       if(!ret)
       {
-        _self.$message(msg+"不能为空！");
+        _self.$message(msg+_self.$t('application.cannotEmpty')+"!");
       }
       return ret;
     },
-    saveItem()
-    {
+    // 日期比较，输入日期-当前日期 -天数
+    validateInputDate(fromDate, dateTime, addDay){
+      let now = fromDate;
+      now=now.setDate(now.getDate()+parseInt(addDay));
+      var today = new Date(now).Format("yyyyMMdd");
+      var dt = new Date(dateTime).Format("yyyyMMdd");
+      return parseInt(dt) - parseInt(today);
+	  },
+    getFormData(){
       let _self = this;
-      if(!_self.validFormValue()){
-        return;
-      }
       var m = new Map();
-      let dataRows = _self.dataList;
-      var i;
-      for (i in dataRows) {
-        if(dataRows[i].attrName && dataRows[i].attrName !='')
-        {
-          if(dataRows[i].attrName !='FOLDER_ID'&&dataRows[i].attrName !='ID')
+      var c;
+      for(c in _self.dataList){
+        let dataRows = _self.dataList[c].ecmFormItems;
+        var i;
+        for (i in dataRows) {
+          if(dataRows[i].attrName && dataRows[i].attrName !='')
           {
-            var val = dataRows[i].defaultValue;
-            if(val && dataRows[i].isRepeat){
-              var temp = "";
-             // console.log(val);
-              for(let j=0,len=val.length;j<len;j++){
-                temp = temp + val[j]+";";
-                //console.log(temp);
+            if(dataRows[i].attrName !='FOLDER_ID'&&dataRows[i].attrName !='ID')
+            {
+              var val = dataRows[i].defaultValue;
+              if(val && dataRows[i].isRepeat){
+                var temp = "";
+              // console.log(val);
+                for(let j=0,len=val.length;j<len;j++){
+                  temp = temp + val[j]+";";
+                  //console.log(temp);
+                }
+                temp = temp.substring(0,temp.length-1);
+                val = temp;
+                //console.log(val);
               }
-              temp = temp.substring(0,temp.length-1);
-              val = temp;
-              console.log(val);
+              m.set(dataRows[i].attrName, val);
             }
-            m.set(dataRows[i].attrName, val);
           }
         }
       }
@@ -242,7 +362,60 @@ export default {
         //console.log(_self.file);
         formdata.append("uploadFile",_self.file.raw);
       }
-      // console.log(JSON.stringify(m));
+      return formdata;
+    },
+
+    saveItem()
+    {
+      let _self = this;
+      if(!_self.validFormValue()){
+        return;
+      }
+      var m = new Map();
+      var c;
+      for(c in _self.dataList){
+        let dataRows = _self.dataList[c].ecmFormItems;
+        var i;
+        for (i in dataRows) {
+          if(dataRows[i].attrName && dataRows[i].attrName !='')
+          {
+            if(dataRows[i].attrName !='FOLDER_ID'&&dataRows[i].attrName !='ID')
+            {
+              var val = dataRows[i].defaultValue;
+              if(val && dataRows[i].isRepeat){
+                var temp = "";
+              // console.log(val);
+                for(let j=0,len=val.length;j<len;j++){
+                  temp = temp + val[j]+";";
+                  //console.log(temp);
+                }
+                temp = temp.substring(0,temp.length-1);
+                val = temp;
+                //console.log(val);
+              }
+              m.set(dataRows[i].attrName, val);
+            }
+          }
+        }
+      }
+      if(_self.myItemId!='')
+      {
+        m.set('ID',_self.myItemId);
+      }
+      if(_self.myTypeName!='')
+      {
+        m.set('TYPE_NAME',_self.myTypeName);
+        m.set('FOLDER_ID',_self.myFolderId);
+      }
+      let formdata = new FormData();
+      formdata.append("metaData",JSON.stringify(m));
+      
+      if(_self.file!="")
+      {
+        //console.log(_self.file);
+        formdata.append("uploadFile",_self.file.raw);
+      }
+      console.log(JSON.stringify(m));
       if(_self.myItemId=='')
       {
         axios.post("/dc/newDocument",formdata,{
@@ -253,27 +426,22 @@ export default {
           //console.log(JSON.stringify(response));
           if(code==1){
             _self.$emit('onSaved','new');
+            _self.$emit("onSaveSuccess",m);
           }
           else{
-             _self.$message("新建失败!");
+             _self.$message(_self.$t('message.newFailured'));
           }
         })
         .catch(function(error) {
-          _self.$message("新建失败!");
+          _self.$message(_self.$t('message.newFailured'));
           console.log(error);
         });
       }
       else
       {
         if(_self.permit<5){
-          _self.$message("您没有修改当前文件属性的权限!");
+          _self.$message(_self.$t('message.hasnoPermssion'));
           return ;
-        }
-        if(_self.clientPermission && _self.clientPermission<4){
-          if(m.get("STATUS")&&(m.get("STATUS")=="利用"||m.get("STATUS")=="销毁")){
-            _self.$message("请先下架后再修改属性!");
-            return ;
-          }
         }
         axios.post("/dc/saveDocument",JSON.stringify(m))
         .then(function(response) {
@@ -281,13 +449,14 @@ export default {
           //console.log(JSON.stringify(response));
           if(code==1){
             _self.$emit('onSaved','update');
+            _self.$emit("onSaveSuccess",m);
           }
           else{
-             _self.$message("保存失败!");
+             _self.$message(_self.$t('message.saveFailured'));
           }
         })
         .catch(function(error) {
-          _self.$message("保存失败!");
+          _self.$message(_self.$t('message.saveFailured'));
           console.log(error);
         });
       }
@@ -297,7 +466,39 @@ export default {
       let _self = this;
       if(_self.myItemId =='')
       {
+        var c;
+            for(c in indata){
+              let frmItems = indata[c].ecmFormItems;
+              //console.log(JSON.stringify(frmItems));
+              var i;
+              for (i in frmItems) {
+                let val =frmItems[i].defaultValue;
+                
+                if(_self.mainSubRelation&&_self.mainSubRelation.size>0
+                &&_self.mainObject&&(val==null||val==undefined||val=='')){
+                   val=_self.mainObject[_self.mainSubRelation.get(frmItems[i].attrName)];
+                   frmItems[i].defaultValue = val;
+                }
+                if(frmItems[i].isRepeat){
+                  if(frmItems[i].controlType=='TextBox' || frmItems[i].controlType=='Select' || frmItems[i].controlType=='SQLSelect' || frmItems[i].controlType=='ValueSelect'){
+                    if(frmItems[i].defaultValue==null){
+                      frmItems[i].defaultValue =[]
+                    }else{
+                      frmItems[i].defaultValue =  frmItems[i].defaultValue.split(";");
+                    }
+                  }
+                }
+                
+                // if("TYPE_NAME"==frmItems[i].attrName){
+                //   _self.typeName=frmItems[i].attrName；
+                // }
+                //console.log(JSON.stringify(frmItems[i].attrName)+":"+frmItems[i].defaultValue);
+              }
+            }
+          
         _self.dataList = indata;
+        _self.mainObject = null;  
+          _self.mainSubRelation = null;
       }
       else
       {
@@ -305,21 +506,26 @@ export default {
           .then(function(response) {
             let tab = response.data.data;
             _self.permit =  response.data.permit;
-            //console.log(JSON.stringify(tab));
-            let frmItems = indata;
-            var i;
-            for (i in frmItems) {
-              let val = tab[frmItems[i].attrName];
-              if(val && frmItems[i].isRepeat){
-                val = val.split(";");
+            
+            var c;
+            for(c in indata){
+              let frmItems = indata[c].ecmFormItems;
+              //console.log(JSON.stringify(frmItems));
+              var i;
+              for (i in frmItems) {
+                let val = tab[frmItems[i].attrName];
+                if(val && frmItems[i].isRepeat){
+                  val = val.split(";");
+                }
+                
+                frmItems[i].defaultValue = val;
+                // if("TYPE_NAME"==frmItems[i].attrName){
+                //   _self.typeName=frmItems[i].attrName；
+                // }
+                //console.log(JSON.stringify(frmItems[i].attrName)+":"+frmItems[i].defaultValue);
               }
-              frmItems[i].defaultValue = val;
-              // if("TYPE_NAME"==frmItems[i].attrName){
-              //   _self.typeName=frmItems[i].attrName；
-              // }
-              //console.log(JSON.stringify(frmItems[i].attrName)+":"+frmItems[i].defaultValue);
             }
-            _self.dataList = frmItems;
+            _self.dataList = indata;
           })
           .catch(function(error) {
             console.log(error);

@@ -11,9 +11,15 @@
         <i slot="prefix" class="icon-mima"></i>
       </el-input>
     </el-form-item>
-    <el-checkbox v-model="checked">记住账号</el-checkbox>
+    <el-checkbox v-model="rememberInfo">{{$t("application.rememberLoginInfo")}}</el-checkbox>
     <el-form-item>
-      <el-button type="primary" size="small" @click.native.prevent="handleLogin" class="login-submit">登录</el-button>
+      <el-button type="primary" size="small" @click.native.prevent="handleLogin" class="login-submit">{{$t("application.login")}}</el-button>
+    </el-form-item>
+    <el-form-item>
+      <el-select v-model="currentLanguage" @change="languageChange" style="width:105px">
+        <el-option label="简体中文" value="zh-cn" key="zh-cn"></el-option>
+        <el-option label="English" value="en" key="en"></el-option>
+      </el-select>
     </el-form-item>
   </el-form>
 </template>
@@ -24,6 +30,7 @@ export default {
     return {
       loading: false,
       rememberInfo: false,
+      currentLanguage:this.getLang(),
       account: {
         username: "",
         password: ""
@@ -48,7 +55,6 @@ export default {
           // { validator: validaePass2 }
         ]
       },
-      checked: true,
       passwordType: 'password'
     };
   },
@@ -67,8 +73,10 @@ export default {
     var reinfo = localStorage.getItem("ziecm-rememberInfo");
     if (reinfo) {
       this.rememberInfo = reinfo == "1";
-      this.account.username = localStorage.getItem("ziecm-ass12bn");
-      this.account.password = localStorage.getItem("ziecm-ass12bp");
+      if(this.rememberInfo){
+        this.account.username = localStorage.getItem("ziecm-ass12bn");
+        this.account.password = localStorage.getItem("ziecm-ass12bp");
+      }
     }
     this.$refs.username.focus();
   },
@@ -78,6 +86,19 @@ export default {
         r;
       if ((r = str.match(reg))) return unescape(r[2]);
       return null;
+    },
+    languageChange(val) {
+      var lang = localStorage.getItem("localeLanguage") || "zh-cn";
+      if (lang != val) {
+        this.$i18n.local = val;
+        if (lang === "zh-cn") {
+          this.locale.use(this.zhLocale);
+        } else {
+          this.locale.use(this.enLocale);
+        }
+        localStorage.setItem("localeLanguage", val);
+        this.$router.go(0);
+      }
     },
     handleLogin() {
       let _self = this;
@@ -93,27 +114,10 @@ export default {
             .then(function(response) {
               //console.log(response.data);
               if (response.data.code == 1) {
-                sessionStorage.setItem(
-                  "access-user",
-                  JSON.stringify(_self.account)
-                );
-                sessionStorage.setItem(
-                  "access-userName",
-                  response.data.userName
-                );
-                sessionStorage.setItem(
-                  "access-department",
-                  response.data.department
-                );
+                _self.setCurrentUser(response.data.data);
                 sessionStorage.setItem("access-token", response.data.token);
-                sessionStorage.setItem(
-                  "access-clientPermission",
-                  response.data.clientPermission
-                );
-                sessionStorage.setItem(
-                  "access-systemPermission",
-                  response.data.systemPermission
-                );
+                sessionStorage.setItem("access-userName", response.data.data.userName);
+                sessionStorage.setItem("access-department",  response.data.data.department);
                 if (_self.rememberInfo) {
                   localStorage.setItem("ziecm-rememberInfo", "1");
                   localStorage.setItem("ziecm-ass12bn", _self.account.username);
@@ -123,12 +127,11 @@ export default {
                   localStorage.removeItem("ziecm-ass12bn");
                   localStorage.removeItem("ziecm-ass12bp");
                 }
-                sessionStorage.setItem(
-                  "access-externalUser",
-                  response.data.externalUser
-                );
                 _self.$router.push({ path: tocomp });
-              } else {
+              } else if(response.data.code == 2){
+                _self.$message(response.data.msg);
+              }
+              else{
                 _self.$message(_self.$t("message.loginFailured"));
               }
               _self.loading = false;

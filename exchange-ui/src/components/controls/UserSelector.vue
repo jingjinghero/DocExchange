@@ -45,7 +45,7 @@
               size="small"
               icon="edit"
               @click="selectitem(scope.row)"
-            >选择</el-button>
+            >{{$t('application.select')}}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -94,7 +94,9 @@ export default {
       let _self = this;
       // console.log("_self.noGroup:"+_self.noGroup);
       var m = new Map();
-      m.set(
+      
+      if(_self.currentUser().company==_self.ownerCompany){
+        m.set(
         "condition",
         _self.inputkey == ""
           ? ""
@@ -107,7 +109,27 @@ export default {
               " or DESCRIPTION like '%" +
               _self.inputkey +
               "%' "
-      );
+        );
+      }else{
+           let condition= (_self.inputkey == ""
+              ? ""
+              : "( NAME like '%" +
+                  _self.inputkey +
+                  "%' " +
+                  " or  LOGIN_NAME like '%" +
+                  _self.inputkey +
+                  "%' " +
+                  " or DESCRIPTION like '%" +
+                  _self.inputkey +
+                  "%' ) and ")+" COMPANY_NAME ='"+_self.currentUser().company+"'"
+
+          m.set(
+          "condition",
+          condition
+        );
+      }
+
+      
       m.set("noGroup", _self.noGroup);
       m.set("groupId", _self.groupId);
       m.set("pageSize", _self.pageSize);

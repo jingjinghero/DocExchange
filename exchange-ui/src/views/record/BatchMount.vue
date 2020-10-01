@@ -2,8 +2,8 @@
   <div>
     <div class="navbar">
       <el-breadcrumb>
-        <el-breadcrumb-item>{{$t('menu.fileManage')}}</el-breadcrumb-item>
-        <el-breadcrumb-item>{{$t('menu.batchMount')}}</el-breadcrumb-item>
+        <el-breadcrumb-item>{{$t('route.fileManage')}}</el-breadcrumb-item>
+        <el-breadcrumb-item>{{$t('route.batchmount')}}</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <div>
@@ -19,7 +19,7 @@
             </el-row>
             <el-row>
               <el-col :span="8">
-                <el-form-item label="Excel文件" style="float: left;">
+                <el-form-item :label="'Excel'+$t('message.file')" style="float: left;">
                   <el-upload
                     :limit="1"
                     :file-list="fileList1"
@@ -28,12 +28,12 @@
                     :auto-upload="false"
                     :multiple="false"
                   >
-                    <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+                    <el-button slot="trigger" size="small" type="primary">{{$t('application.selectFile')}}</el-button>
                   </el-upload>
                 </el-form-item>
               </el-col>
               <el-col :span="8">
-                <el-form-item label="电子文件" style="float: left;">
+                <el-form-item :label="'Excel'+$t('message.ElectronicFiles')" style="float: left;">
                   <el-upload
                     :limit="100"
                     :file-list="fileList2"
@@ -42,13 +42,13 @@
                     :auto-upload="false"
                     :multiple="true"
                   >
-                    <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+                    <el-button slot="trigger" size="small" type="primary">{{$t('application.selectFile')}}</el-button>
                   </el-upload>
                 </el-form-item>
               </el-col>
               <el-col :span="8" style="float: left;text-align:left;">
                 <el-button type="primary" plain icon="el-icon-upload2" @click="batchMount1()">开始挂载</el-button>
-                <el-button plain type="primary" @click="cleanFiles1()">清除所有文件</el-button>
+                <el-button plain type="primary" @click="cleanFiles1()">{{$t('message.ClearFiles')}}</el-button>
               </el-col>
             </el-row>
           </el-tab-pane>
@@ -62,7 +62,7 @@
             </el-row>
             <el-row>
               <el-col :span="8">
-                <el-form-item label="电子文件" style="float: left;">
+                <el-form-item :label="'Excel'+$t('message.ElectronicFiles')" style="float: left;">
                   <el-upload
                     :limit="100"
                     :file-list="fileList3"
@@ -71,13 +71,13 @@
                     :auto-upload="false"
                     :multiple="true"
                   >
-                    <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+                    <el-button slot="trigger" size="small" type="primary">{{$t('application.selectFile')}}</el-button>
                   </el-upload>
                 </el-form-item>
               </el-col>
               <el-col :span="8" style="float: left;text-align:left;">
                 <el-button type="primary" plain icon="el-icon-upload2" @click="batchMount2()">开始挂载</el-button>
-                <el-button plain type="primary" @click="cleanFiles2()">清除所有文件</el-button>
+                <el-button plain type="primary" @click="cleanFiles2()">{{$t('message.ClearFiles')}}</el-button>
               </el-col>
             </el-row>
           </el-tab-pane>

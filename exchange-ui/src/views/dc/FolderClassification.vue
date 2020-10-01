@@ -22,7 +22,7 @@
         >{{item.label}}</el-checkbox>
       </el-checkbox-group>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="columnsInfo.dialogFormVisible=false" size="medium">取 消</el-button>
+        <el-button @click="columnsInfo.dialogFormVisible=false" size="medium">{{$t('application.cancel')}}</el-button>
         <el-button type="primary" @click="confirmShow" size="medium">确定</el-button>
       </div>
     </el-dialog>
@@ -32,7 +32,7 @@
       @close="propertyVisible = false"
       width="96%"
     >
-    <el-tabs type="border-card">
+    <el-tabs type="border-card" >
       <el-tab-pane label="基本信息">
         <ShowProperty
           ref="ShowProperty"
@@ -57,6 +57,18 @@
           v-bind:docId="currentDocument.ID"
         ></ObjectAcl>
       </el-tab-pane>
+      <!--
+      <el-tab-pane label="启动流程" >
+        <StartWorkflow
+          ref="StartWorkflow"
+          @onSaved="onSaved"
+          width="100%"
+          v-bind:itemId="selectedItemId"
+          v-bind:folderId="currentFolder.id"
+          v-bind:typeName="currentFolder.typeName"
+        ></StartWorkflow>
+      </el-tab-pane>
+      -->
     </el-tabs>
       
       <div slot="footer" class="dialog-footer">
@@ -146,13 +158,37 @@
             :auto-upload="false"
             :multiple="false"
           >
-            <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+            <el-button slot="trigger" size="small" type="primary">{{$t('application.selectFile')}}</el-button>
           </el-upload>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="udialogVisible = false">取 消</el-button>
+        <el-button @click="udialogVisible = false">{{$t('application.cancel')}}</el-button>
         <el-button type="primary" @click="updateNewFile()">确 定</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog
+      title="Json包导入"
+      :visible.sync="importDialogVisible"
+      v-loading="uploading"
+    >
+      <el-form  label-position="right" label-width="120px">
+        <el-form-item label="文件" :label-width="formLabelWidth">
+          <el-upload
+            :limit="1"
+            :file-list="jsonFileList"
+            action
+            :on-change="handleJsonFileChange"
+            :auto-upload="false"
+            :multiple="false"
+          >
+            <el-button slot="trigger" size="small" type="primary">{{$t('application.selectFile')}}</el-button>
+          </el-upload>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="importDialogVisible = false">{{$t('application.cancel')}}</el-button>
+        <el-button type="primary" @click="importPackage()">确 定</el-button>
       </div>
     </el-dialog>
     <el-dialog
@@ -165,7 +201,7 @@
     </el-dialog>
  
         <el-row style="padding-top:10px;padding-bottom:10px;">
-          <el-col :span="5" style="text-align: left">
+          <el-col :span="4" style="text-align: left">
             <el-tooltip
               class="item"
               effect="dark"
@@ -223,6 +259,16 @@
             <el-button type="primary" icon="el-icon-document-copy" @click="copyItem()">复制</el-button>
             <el-button type="primary" icon="el-icon-upload2" @click="showUpdateFile(0)">更新</el-button>
             <el-button type="primary" icon="el-icon-upload2" @click="showUpdateFile(1)">副本</el-button>
+            <el-button
+              type="primary"
+              icon="el-icon-download"
+              @click="handleExportItem()"
+            >导出</el-button>
+            <el-button
+              type="primary"
+              icon="el-icon-upload2"
+              @click="importDialogVisible = true"
+            >导入</el-button>
           </el-col>
         </el-row>
       <div :style="{position:'relative',height: asideHeight+'px'}">
@@ -251,6 +297,7 @@
               @selection-change="selectChange"
               @sort-change="sortchange"
               @header-dragend="onHeaderDragend"
+              
               style="width: 100%"
             >
               <el-table-column type="selection" width="40" @selection-change="selectChange"></el-table-column>
@@ -302,9 +349,9 @@
                   </div>
                 </div>
               </div>
-              <el-table-column :label="$t('application.operation')" width="140">
+              <el-table-column :label="$t('application.operation')" width="130">
                 <template slot="header">
-                  <el-button icon="el-icon-s-grid" @click="dialogFormShow"></el-button>
+                  <el-button icon="el-icon-s-grid" size="small" @click="dialogFormShow"></el-button>
                 </template>
                 <template slot-scope="scope">
                   <el-button
@@ -352,6 +399,7 @@ import InnerItemViewer from "./InnerItemViewer.vue";
 import ObjectAcl from '@/components/controls/ObjectAcl';
 import SystemInfo from '@/components/controls/SystemInfo';
 import FolderAcl from '@/components/controls/FolderAcl';
+import StartWorkflow from '@/views/workflow/StartWorkflow';
 
 import "url-search-params-polyfill";
 
@@ -364,14 +412,19 @@ export default {
     FolderSelector: FolderSelector,
     ObjectAcl: ObjectAcl,
     SystemInfo: SystemInfo,
-    FolderAcl:FolderAcl
+    FolderAcl:FolderAcl,
+    StartWorkflow: StartWorkflow
   },
   data() {
     return {
+      activeTab:"基本信息",
       targetFolderId: "",
       moveDialogVisible: false,
       udialogVisible: false,
       itemDialogVisible: false,
+      importDialogVisible: false,
+      jsonFileList: [],
+      jsonFile: null,
       newFileList: [],
       currentId: "",
       isMoveFolder:false,
@@ -393,6 +446,7 @@ export default {
       currentFolder: [],
       currentDocument: [],
       dataListFull: "",
+      uploadFile:null,
       inputkey: "",
       loading: false,
       uploading: false,
@@ -405,9 +459,9 @@ export default {
       propertyVisible: false,
       dialogFormVisible: false,
       selectedItems: [],
-      asideHeight: window.innerHeight - 115,
-      treeHeight:window.innerHeight - 124,
-      tableHeight: window.innerHeight - 150,
+      asideHeight: window.innerHeight - 150,
+      treeHeight:window.innerHeight - 160,
+      tableHeight: window.innerHeight - 180,
       asideWidth: '100%',
       folderAction: "",
       folderDialogVisible: false,
@@ -460,11 +514,10 @@ export default {
     }
     _self.currentLanguage = localStorage.getItem("localeLanguage") || "zh-cn";
     _self.loading = true;
-    var user = sessionStorage.getItem('access-user');
-      if(user)
+      if(_self.currentUser())
       {
-        _self.clientPermission = Number(sessionStorage.getItem('access-clientPermission'));
-        _self.systemPermission = Number(sessionStorage.getItem('access-systemPermission'));
+        _self.clientPermission = Number(_self.currentUser().clientPermission);
+        _self.systemPermission = Number(_self.currentUser().systemPermission);
       }
     axios
       .post("/admin/getFolder", 0)
@@ -494,6 +547,9 @@ export default {
     handleFileChange(file, fileList) {
       this.uploadFile = file;
     },
+    handleJsonFileChange(file, fileList) {
+      this.jsonFile = file;
+    },
     updateNewFile() {
       let _self = this;
       if (_self.selectedItems && _self.selectedItems.length > 0) {
@@ -503,6 +559,29 @@ export default {
           _self.uploadRendition();
         }
       }
+    },
+    importPackage(){
+      let _self = this;
+      _self.uploading = true;
+      let formdata = new FormData();
+      formdata.append("folderId", _self.currentFolder.id);
+      if (_self.jsonFile != "") {
+        formdata.append("jsonFile", _self.jsonFile.raw);
+      }
+      axios
+        .post("/admin/importPackage", formdata, {
+          "Content-Type": "multipart/form-data"
+        })
+        .then(function(response) {
+          _self.importDialogVisible = false;
+          _self.loadGridData(_self.currentFolder);
+          _self.$message(_self.$t('application.Import')+_self.$t('message.success'));
+          _self.uploading = false;
+        })
+        .catch(function(error) {
+          console.log(error);
+          _self.uploading = false;
+        });
     },
     uploadPrimry() {
       let _self = this;
@@ -615,11 +694,16 @@ export default {
         });
     },
     getSelectedIds() {
-      var str = "";
-      this.selectedItems.forEach(function(val) {
-        str += val.ID + ";";
-      });
-      return str;
+      if(this.isMoveFolder)
+      {
+        return this.currentFolder.id;
+      }else{
+        var str = "";
+        this.selectedItems.forEach(function(val) {
+          str += val.ID + ";";
+        });
+        return str;
+      }
     },
     rowClick(row) {
       this.currentId = row.ID;
@@ -828,10 +912,57 @@ export default {
       if (indata == "update") {
         this.$message(this.$t("message.saveSuccess"));
       } else {
-        this.$message("新建成功!");
+        this.$message(this.$t("message.operationSuccess"));
       }
       this.propertyVisible = false;
       this.loadGridData(this.currentFolder);
+    },
+    handleExportItem(){
+      let _self = this;
+      var m = [];
+      let tab = _self.selectedItems;
+      var i;
+      for (i in tab) {
+        m.push(tab[i]["ID"]);
+      }
+      axios
+        .post("/admin/getPackage", JSON.stringify(m))
+        .then(function(response) {
+          const content = JSON.stringify(response.data)
+          //_self.exportRaw("package.txt", content)
+        
+          const blob = new Blob([content]) // 构造一个blob对象来处理数据
+          const fileName = 'package.json' // 导出文件名
+          // 对于<a>标签，只有 Firefox 和 Chrome（内核） 支持 download 属性
+          // IE10以上支持blob但是依然不支持download
+          if ('download' in document.createElement('a')) { // 支持a标签download的浏览器
+            const link = document.createElement('a') // 创建a标签
+            link.download = fileName // a标签添加属性
+            link.style.display = 'none'
+            link.href = URL.createObjectURL(blob)
+            document.body.appendChild(link)
+            link.click() // 执行下载
+            URL.revokeObjectURL(link.href) // 释放url
+            document.body.removeChild(link) // 释放标签
+          } else { // 其他浏览器
+            navigator.msSaveBlob(blob, fileName)
+          }
+        })
+        .catch(function(error) {
+          _self.$message("打包失败");
+          console.log(error);
+        });
+    },
+    exportRaw(name, data) {
+      var urlObject = window.URL || window.webkitURL || window;
+      var export_blob = new Blob([data]);
+      var save_link = document.createElementNS(
+        "http://www.w3.org/1999/xhtml",
+        "a"
+      );
+      save_link.href = urlObject.createObjectURL(export_blob);
+      save_link.download = name;
+      this.fakeClick(save_link);
     },
     // 删除文档事件
     onDeleleItem() {
@@ -893,6 +1024,17 @@ export default {
       if (_self.$refs.SystemInfo) {
         _self.$refs.SystemInfo.itemData = indata;
         _self.$refs.SystemInfo.refreshData();
+      }
+    },
+    // 查看属性
+    showsStartBJSPWorkflow(indata) {
+      let _self = this;
+      _self.currentDocument = indata;
+      _self.selectedItemId = indata.ID;
+      _self.propertyVisible = true;
+      _self.activeTab="启动流程";
+      if (_self.$refs.StartWorkflow) {
+        _self.$refs.StartWorkflow.docId = indata.ID;
       }
     },
     // 查看内容

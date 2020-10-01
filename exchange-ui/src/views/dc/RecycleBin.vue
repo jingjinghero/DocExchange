@@ -27,7 +27,7 @@
         >{{item.label}}</el-checkbox>
       </el-checkbox-group>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="columnsInfo.dialogFormVisible=false" size="medium">取 消</el-button>
+        <el-button @click="columnsInfo.dialogFormVisible=false" size="medium">{{$t('application.cancel')}}</el-button>
         <el-button type="primary" @click="confirmShow" size="medium">确定</el-button>
       </div>
     </el-dialog>
@@ -35,7 +35,7 @@
       <split-pane split="vertical" @resize="resize" min-percent='10' :default-percent='15'>
         <template slot="paneL">
           <el-breadcrumb style="padding-top:10px;padding-bottom:10px;">
-            <el-breadcrumb-item><i class="el-icon-delete-solid"></i>&nbsp; {{$t('menu.recycleBin')}}</el-breadcrumb-item>
+            <el-breadcrumb-item><i class="el-icon-delete-solid"></i>&nbsp; {{$t('route.recycleBin')}}</el-breadcrumb-item>
           </el-breadcrumb>
           <el-container :style="{height:treeHeight+'px',width:asideWidth+'px',overflow:'auto'}">
           <el-tree
