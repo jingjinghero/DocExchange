@@ -31,7 +31,7 @@ import com.ecm.portal.util.CustomInfo;
  *
  */
 @Controller
-public class GroupController extends ControllerAbstract {
+public class ExcGroupController extends ControllerAbstract {
 
 	@Autowired
 	private GroupService groupService;

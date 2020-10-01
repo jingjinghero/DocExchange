@@ -45,7 +45,7 @@ import com.ecm.portal.util.CustomInfo;
  *
  */
 @Controller
-public class UserController extends ControllerAbstract {
+public class ExcUserController extends ControllerAbstract {
 
 	@Autowired
 	private UserService userService;
@@ -132,84 +132,7 @@ public class UserController extends ControllerAbstract {
 		return mp;
 	}
 
-	@RequestMapping(value = "/admin/updateSignImage", method = RequestMethod.POST)
-	@ResponseBody
-	public Map<String, Object> updateSignImage(String id, MultipartFile uploadFile) {
-		Map<String, Object> mp = new HashMap<String, Object>();
-		try {
-			InputStream instream = null;
-			String fileName = null;
-			if (uploadFile != null) {
-				instream = uploadFile.getInputStream();
-				fileName = uploadFile.getOriginalFilename();
-			}
-			userService.updateSignImage(getToken(), id, instream, fileName);
-			if (instream != null) {
-				instream.close();
-			}
-			mp.put("code", ActionContext.SUCESS);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			mp.put("code", ActionContext.FAILURE);
-			mp.put("message", e.getMessage());
-		}
-		return mp;
-	}
-
-	/**
-	 * 更新用户
-	 * 
-	 * @param obj 用户实例
-	 * @return
-	 */
-	@RequestMapping(value = "/admin/moveUserDept", method = RequestMethod.POST)
-	@ResponseBody
-	public Map<String, Object> moveUserDepartment(@RequestBody EcmUser obj) {
-		Map<String, Object> mp = new HashMap<String, Object>();
-		try {
-			userService.moveUserDepartment(getToken(), obj);
-			mp.put("code", ActionContext.SUCESS);
-		} catch (EcmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			mp.put("code", ActionContext.FAILURE);
-			mp.put("message", e.getMessage());
-		} catch (AccessDeniedException e) {
-			// TODO Auto-generated catch block
-			mp.put("code", ActionContext.TIME_OUT);
-			mp.put("message", e.getMessage());
-		} catch (NoPermissionException e) {
-			// TODO Auto-generated catch block
-			mp.put("code", ActionContext.NO_PERMSSION);
-			mp.put("message", e.getMessage());
-		}
-		return mp;
-	}
-
-	@RequestMapping(value = "/admin/removeUserGroup", method = RequestMethod.POST)
-	@ResponseBody
-	public Map<String, Object> removeUserGroup(@RequestBody EcmUser obj) {
-		Map<String, Object> mp = new HashMap<String, Object>();
-		try {
-			groupService.removeUserFromGroup(getToken(), obj);
-			mp.put("code", ActionContext.SUCESS);
-		} catch (EcmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			mp.put("code", ActionContext.FAILURE);
-			mp.put("message", e.getMessage());
-		} catch (AccessDeniedException e) {
-			// TODO Auto-generated catch block
-			mp.put("code", ActionContext.TIME_OUT);
-			mp.put("message", e.getMessage());
-		} catch (NoPermissionException e) {
-			// TODO Auto-generated catch block
-			mp.put("code", ActionContext.NO_PERMSSION);
-			mp.put("message", e.getMessage());
-		}
-		return mp;
-	}
+	
 
 	@RequestMapping(value = "/exc/removeUserRole", method = RequestMethod.POST)
 	@ResponseBody
