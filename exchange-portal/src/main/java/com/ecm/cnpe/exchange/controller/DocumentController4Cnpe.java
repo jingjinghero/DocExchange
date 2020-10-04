@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,6 +36,7 @@ import com.ecm.portal.util.CustomInfo;
 
 @Controller
 public class DocumentController4Cnpe extends ControllerAbstract {
+	private static final Logger logger = LoggerFactory.getLogger(DocumentController4Cnpe.class);
 	@Autowired
 	private EcmDocumentMapper ecmDocument;
 	@Autowired
@@ -585,7 +588,7 @@ public class DocumentController4Cnpe extends ControllerAbstract {
 		Map<String, Object> mp = new HashMap<String, Object>();
 		try {
 			List<String> TRS = JSONUtils.stringToArray(argStr);
-			System.out.println(TRS);
+			logger.debug(argStr);
 			documentService.getTRS(TRS);
 			
 			

@@ -52,7 +52,7 @@ public class ExcSynBatchController  extends ControllerAbstract {
 		pager.setPageIndex(pageindex);
 		pager.setPageSize(pagesize);
 		String cond = "BATCH_NUM = '"+ID+"'";
-		//System.out.println("取到的数据是"+projectname);
+		//logger.debug("取到的数据是"+projectname);
 		List<ExcSynBatch> projList = batchService.selectByCondition(pager,cond);
 		List<ExcSynBatch> totals = batchService.getByCondition(cond);
 		int total = totals.size();

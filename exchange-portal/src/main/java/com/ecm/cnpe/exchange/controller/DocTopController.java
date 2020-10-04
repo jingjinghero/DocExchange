@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +26,7 @@ import com.ecm.portal.util.CustomInfo;
 @RestController
 
 public class DocTopController extends ControllerAbstract  {
-	
+	private static final Logger logger = LoggerFactory.getLogger(DocTopController.class);
 	@Autowired
 	private EcmDocumentMapper ecmDocument;
 	@Autowired
@@ -176,7 +178,7 @@ public class DocTopController extends ControllerAbstract  {
 		
 		try {
 			List<Map<String, Object>> numList = ecmDocument.executeSQL(sqlList);
-			System.out.println(sqlList);
+			logger.debug(sqlList);
 			//基本信息
 			mp.put("sumNum",numList.get(0).get("sumNum"));//项目
 			mp.put("dcNum", numList.get(0).get("dcNum"));//文函
@@ -257,7 +259,7 @@ public class DocTopController extends ControllerAbstract  {
 			whereSql+=" and (C_COMPANY='"+getLCompany+"' or TO_NAME='"+getLCompany+"')";
 		}
 		String sql="select STATUS,count(*) as c from ecm_document where (c_item_type='文函' or type_name='设计文件') and c_is_released=1 "+whereSql+" GROUP by status ";
-		System.out.println(sql);
+		logger.debug(sql);
 		List<Map<String, Object>> data= documentService.getMapList(getToken(), sql);
 		Map<String,Object> result=new HashMap<>();
 		for(Map<String,Object> d : data) {
@@ -337,7 +339,7 @@ and C_IS_RELEASED =1  GROUP by STATUS
 				+" group by STATUS";
 		List<Map<String, Object>> data= documentService.getMapList(getToken(), sql);
 		Map<String,Object> result=new HashMap<>();
-		System.out.println(sql);
+		logger.debug(sql);
 		for(Map<String,Object> d : data) {
 			if(d.get("STATUS") !=null) {
 				result.put(d.get("STATUS").toString(), d.get("c"));

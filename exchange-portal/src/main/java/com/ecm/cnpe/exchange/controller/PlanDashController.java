@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,6 +35,7 @@ import com.ecm.portal.util.CustomInfo;
 
 @Controller
 public class PlanDashController extends ControllerAbstract{
+	private static final Logger logger = LoggerFactory.getLogger(PlanDashController.class);
 	@Autowired
 	private EcmDocumentMapper ecmDocument;
 	@Autowired
@@ -78,12 +81,12 @@ public class PlanDashController extends ControllerAbstract{
 		}
 		String sql="select count(*) as count from ecm_document WHERE TYPE_NAME='计划任务' and sub_type='Activity' "+whereSql;	
 		List<Map<String, Object>> data= documentService.getMapList(getToken(), sql);
-		System.out.println(sql);
+		logger.debug(sql);
 		Map<String,Object> d = new HashMap<String,Object>();
 		Map<String,Object> result=new HashMap<String, Object>();
 		for(int i=0;i<data.size();i++) {
 			d = data.get(i);
-			System.out.println(d.get("count").toString());
+			logger.debug(d.get("count").toString());
 			result.put("num", d.get("count"));
 		}
 		mp.put("code", "1");
@@ -219,12 +222,12 @@ public class PlanDashController extends ControllerAbstract{
 		String company = userObj.getCompany();
 		String sql="select count(*) as count from ecm_document WHERE TYPE_NAME='IED' "+whereSql+"AND status='已生效' and c_is_released='1' and is_current='1' and c_company = '"+company+"'";
 		List<Map<String, Object>> data= documentService.getMapList(getToken(), sql);
-		System.out.println(sql);
+		logger.debug(sql);
 		Map<String,Object> d = new HashMap<String,Object>();
 		Map<String,Object> result=new HashMap<String, Object>();
 		for(int i=0;i<data.size();i++) {
 			d = data.get(i);
-			System.out.println(d.get("count").toString());
+			logger.debug(d.get("count").toString());
 			result.put("num", d.get("count"));
 		}
 		mp.put("code", "1");
@@ -269,7 +272,7 @@ public class PlanDashController extends ControllerAbstract{
 		Map<String,Object> result=new HashMap<String, Object>();
 		for(int i=0;i<data.size();i++) {
 			d = data.get(i);
-			System.out.println(d.get("count").toString());
+			logger.debug(d.get("count").toString());
 			result.put("num", d.get("count"));
 		}
 		mp.put("code", "1");
@@ -315,12 +318,12 @@ public class PlanDashController extends ControllerAbstract{
 		String company = userObj.getCompany();
 		String sql="select count(*) as count from ecm_document WHERE TYPE_NAME='IED' and c_is_released='1' and is_current='1' and c_company='"+company+"'"+whereSql+"AND STATUS = '已生效'";
 		List<Map<String, Object>> data= documentService.getMapList(getToken(), sql);
-		System.out.println(sql);
+		logger.debug(sql);
 		Map<String,Object> d = new HashMap<String,Object>();
 		Map<String,Object> result=new HashMap<String, Object>();
 		for(int i=0;i<data.size();i++) {
 			d = data.get(i);
-			System.out.println(d.get("count").toString());
+			logger.debug(d.get("count").toString());
 			result.put("num", d.get("count"));
 		}
 		mp.put("code", "1");
@@ -361,12 +364,12 @@ public class PlanDashController extends ControllerAbstract{
 		}
 		String sql="select count(*) as count from ecm_document WHERE TYPE_NAME='IED' "+whereSql+"AND STATUS = '新建'";
 		List<Map<String, Object>> data= documentService.getMapList(getToken(), sql);
-		System.out.println(sql);
+		logger.debug(sql);
 		Map<String,Object> d = new HashMap<String,Object>();
 		Map<String,Object> result=new HashMap<String, Object>();
 		for(int i=0;i<data.size();i++) {
 			d = data.get(i);
-			System.out.println(d.get("count").toString());
+			logger.debug(d.get("count").toString());
 			result.put("num", d.get("count"));
 		}
 		mp.put("code", "1");
@@ -406,12 +409,12 @@ public class PlanDashController extends ControllerAbstract{
 		}
 		String sql="select count(*) as count from ecm_document WHERE TYPE_NAME='IED' "+whereSql+"AND STATUS = '审核中'";
 		List<Map<String, Object>> data= documentService.getMapList(getToken(), sql);
-		System.out.println(sql);
+		logger.debug(sql);
 		Map<String,Object> d = new HashMap<String,Object>();
 		Map<String,Object> result=new HashMap<String, Object>();
 		for(int i=0;i<data.size();i++) {
 			d = data.get(i);
-			System.out.println(d.get("count").toString());
+			logger.debug(d.get("count").toString());
 			result.put("num", d.get("count"));
 		}
 		mp.put("code", "1");
@@ -453,12 +456,12 @@ public class PlanDashController extends ControllerAbstract{
 		}
 		String sql="select count(*) as count from ecm_document WHERE TYPE_NAME='IED' "+whereSql+"AND STATUS = '已驳回'";
 		List<Map<String, Object>> data= documentService.getMapList(getToken(), sql);
-		System.out.println(sql);
+		logger.debug(sql);
 		Map<String,Object> d = new HashMap<String,Object>();
 		Map<String,Object> result=new HashMap<String, Object>();
 		for(int i=0;i<data.size();i++) {
 			d = data.get(i);
-			System.out.println(d.get("count").toString());
+			logger.debug(d.get("count").toString());
 			result.put("num", d.get("count"));
 		}
 		mp.put("code", "1");
@@ -499,12 +502,12 @@ public class PlanDashController extends ControllerAbstract{
 		}
 		String sql="select count(*) as count from ecm_document WHERE TYPE_NAME='ICM' "+whereSql;
 		List<Map<String, Object>> data= documentService.getMapList(getToken(), sql);
-		System.out.println(sql);
+		logger.debug(sql);
 		Map<String,Object> d = new HashMap<String,Object>();
 		Map<String,Object> result=new HashMap<String, Object>();
 		for(int i=0;i<data.size();i++) {
 			d = data.get(i);
-			System.out.println(d.get("count").toString());
+			logger.debug(d.get("count").toString());
 			result.put("num", d.get("count"));
 		}
 		mp.put("code", "1");
@@ -549,12 +552,12 @@ public class PlanDashController extends ControllerAbstract{
 		String company = userObj.getCompany();
 		String sql="select count(*) as count from ecm_document WHERE (C_CODE5='N' OR C_CODE6='N') and  TYPE_NAME='ICM'"+whereSql;
 		List<Map<String, Object>> data= documentService.getMapList(getToken(), sql);
-		System.out.println(sql);
+		logger.debug(sql);
 		Map<String,Object> d = new HashMap<String,Object>();
 		Map<String,Object> result=new HashMap<String, Object>();
 		for(int i=0;i<data.size();i++) {
 			d = data.get(i);
-			System.out.println(d.get("count").toString());
+			logger.debug(d.get("count").toString());
 			result.put("num", d.get("count"));
 		}
 		mp.put("code", "1");
@@ -606,7 +609,7 @@ public class PlanDashController extends ControllerAbstract{
 		Map<String,Object> result=new HashMap<String, Object>();
 		for(int i=0;i<data.size();i++) {
 			d = data.get(i);
-			//System.out.println(d.get("count").toString()+"取到的数据是：");
+			//logger.debug(d.get("count").toString()+"取到的数据是：");
 			result.put("num", d.get("dcNum"));
 		}
 		mp.put("code", "1");
@@ -663,7 +666,7 @@ public class PlanDashController extends ControllerAbstract{
 		Map<String,Object> result=new HashMap<String, Object>();
 		for(int i=0;i<data.size();i++) {
 			d = data.get(i);
-			//System.out.println(d.get("count").toString()+"取到的数据是：");
+			//logger.debug(d.get("count").toString()+"取到的数据是：");
 			result.put("num", d.get("dcNum"));
 		}
 		mp.put("code", "1");
@@ -707,12 +710,12 @@ public class PlanDashController extends ControllerAbstract{
 		String company= userObj.getCompany();
 		String sql="select count(*) as count from ecm_document WHERE TYPE_NAME='计划任务' and sub_type='Activity' "+whereSql;
 		List<Map<String, Object>> data= documentService.getMapList(getToken(), sql);
-		System.out.println(sql);
+		logger.debug(sql);
 		Map<String,Object> d = new HashMap<String,Object>();
 		Map<String,Object> result=new HashMap<String, Object>();
 		for(int i=0;i<data.size();i++) {
 			d = data.get(i);
-			System.out.println(d.get("count").toString());
+			logger.debug(d.get("count").toString());
 			result.put("num", d.get("count"));
 		}
 		mp.put("code", "1");
@@ -805,12 +808,12 @@ public class PlanDashController extends ControllerAbstract{
 		String company= userObj.getCompany();
 		String sql="select count(*) as count from ecm_document WHERE TYPE_NAME='计划' "+"and C_TO='"+company+"'"+whereSql;
 		List<Map<String, Object>> data= documentService.getMapList(getToken(), sql);
-		System.out.println(sql);
+		logger.debug(sql);
 		Map<String,Object> d = new HashMap<String,Object>();
 		Map<String,Object> result=new HashMap<String, Object>();
 		for(int i=0;i<data.size();i++) {
 			d = data.get(i);
-			System.out.println(d.get("count").toString());
+			logger.debug(d.get("count").toString());
 			result.put("num", d.get("count"));
 		}
 		mp.put("code", "1");
@@ -857,12 +860,12 @@ public class PlanDashController extends ControllerAbstract{
 		String sql="select count(*) as count from ecm_document ed where ed.TYPE_NAME='项目' and ed.NAME in (select eg.NAME from ecm_group eg where id in (select egu.group_id from ecm_group_user egu where egu.USER_ID in "
 				+ "(select id from ecm_user where login_name='"+ name + "')))";
 		List<Map<String, Object>> data= documentService.getMapList(getToken(), sql);
-		System.out.println(sql);
+		logger.debug(sql);
 		Map<String,Object> d = new HashMap<String,Object>();
 		Map<String,Object> result=new HashMap<String, Object>();
 		for(int i=0;i<data.size();i++) {
 			d = data.get(i);
-			System.out.println(d.get("count").toString());
+			logger.debug(d.get("count").toString());
 			result.put("num", d.get("count"));
 		}
 		mp.put("code", "1");
@@ -926,7 +929,7 @@ public class PlanDashController extends ControllerAbstract{
 			mp.put("dcNum",numList.get(0).get("dcNum"));
 			mp.put("icmNum",numList.get(0).get("icmNum"));
 			mp.put("feedbackicmNum",numList.get(0).get("feedbackicmNum"));
-			System.out.println(sqlList);
+			logger.debug(sqlList);
 		}catch(Exception ex) {
 			ex.printStackTrace();
 			mp.put("code", ActionContext.FAILURE);
@@ -976,7 +979,7 @@ public class PlanDashController extends ControllerAbstract{
 		Map<String,Object> result=new HashMap<String, Object>();
 		for(int i=0;i<data.size();i++) {
 			d = data.get(i);
-			System.out.println(d.get("count").toString());
+			logger.debug(d.get("count").toString());
 			result.put("num", d.get("count"));
 		}
 		mp.put("code", "1");
@@ -996,7 +999,7 @@ public class PlanDashController extends ControllerAbstract{
 		String name =args.get("C_PROJECT_NAME").toString();
 		String projectName = args.get("NAME").toString();
 		String sql="select * from ecm_Document where Type_Name='计划' and C_PROJECT_NAME='"+name+"' and Name='"+projectName+"'";
-		System.out.println(sql);
+		logger.debug(sql);
 		List<Map<String,Object>> res = documentService.getMapList(getToken(), sql);
 		if(res.size()>0) {
 			mp.put("code", 2);

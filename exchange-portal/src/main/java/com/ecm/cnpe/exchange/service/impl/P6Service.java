@@ -11,6 +11,8 @@ import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.ConnectionType;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +29,7 @@ import com.ecm.cnpe.exchange.service.IP6Service;
 
 @Service
 public class P6Service implements IP6Service{
+	private static final Logger logger = LoggerFactory.getLogger(P6Service.class);
 	@Autowired
 	private P6Config p6;
 	
@@ -50,7 +53,7 @@ public class P6Service implements IP6Service{
 			projectURL = new URL(p6.getProjectService());
 			return true;
 		} catch (MalformedURLException e) {
-			System.err.println("P6 WebService地址配置错误，错误信息：" + e.getMessage());
+			logger.error("P6 WebService地址配置错误，错误信息：" + e.getMessage());
 			e.printStackTrace();
 			return false;
 		}
@@ -70,7 +73,7 @@ public class P6Service implements IP6Service{
 		try {
 			isLoginSuccess = anthenticationServicePort.login(p6.getUsername(), p6.getPassword(), null);
 		} catch (IntegrationFault e) {
-			System.err.println("根据地址：" + p6.getAuthenticationService() + ",用户名：" + p6.getUsername() + ",密码：" + p6.getPassword() + "，访问P6接口出错，错误信息：" + e.getMessage());
+			logger.error("根据地址：" + p6.getAuthenticationService() + ",用户名：" + p6.getUsername() + ",密码：" + p6.getPassword() + "，访问P6接口出错，错误信息：" + e.getMessage());
 			e.printStackTrace();
 			return false;
 		}
@@ -131,7 +134,7 @@ public class P6Service implements IP6Service{
 			try {
 				isLoginSuccess = this.auth();
 				if(!isLoginSuccess) {
-					System.err.println("P6用户 "+p6.getUsername()+" 登录失败");
+					logger.error("P6用户 "+p6.getUsername()+" 登录失败");
 					return list;
 				}
 				ProjectPortType service = this.getProjectService();

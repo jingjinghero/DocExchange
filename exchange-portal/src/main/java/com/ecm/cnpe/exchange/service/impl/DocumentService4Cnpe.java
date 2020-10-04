@@ -3,11 +3,14 @@ package com.ecm.cnpe.exchange.service.impl;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.druid.util.StringUtils;
+import com.alibaba.fastjson.JSON;
 import com.ecm.common.util.EcmStringUtils;
 import com.ecm.core.cache.manager.CacheManagerOper;
 import com.ecm.core.dao.EcmDocumentMapper;
@@ -25,6 +28,7 @@ import com.ecm.core.service.DocumentService;
 import com.ecm.core.service.ExcTransferServiceImpl;
 @Service
 public class DocumentService4Cnpe extends DocumentService{
+	private static final Logger logger = LoggerFactory.getLogger(DocumentService4Cnpe.class);
 	@Autowired
 	private EcmDocumentMapper ecmDocument;
 	@Autowired
@@ -123,7 +127,7 @@ public class DocumentService4Cnpe extends DocumentService{
 		}
 		
 		sql=SqlUtils.replaceSql(sql, userObj);
-		System.out.println(sql);
+		logger.debug(sql);
 		List<Map<String, Object>> list = ecmDocument.executeSQL(pager, sql);
 		// TODO Auto-generated method stub
 		return list;
@@ -269,7 +273,7 @@ public class DocumentService4Cnpe extends DocumentService{
 		}
 		
 		sql=SqlUtils.replaceSql(sql, userObj);
-		System.out.println(sql);
+		logger.debug(sql);
 		List<Map<String, Object>> list = ecmDocument.executeSQL(pager, sql);
 		// TODO Auto-generated method stub
 		
@@ -326,7 +330,7 @@ public class DocumentService4Cnpe extends DocumentService{
 		}
 		
 		sql=SqlUtils.replaceSql(sql, userObj);
-		System.out.println(sql);
+		logger.debug(sql);
 		List<Map<String, Object>> list = ecmDocument.executeSQL(pager, sql);
 		// TODO Auto-generated method stub
 		
@@ -378,7 +382,7 @@ public class DocumentService4Cnpe extends DocumentService{
 		String sql="select a.ID from exc_transfer a,ecm_document b where a.doc_id=b.ID "
 				+" and b.ID ='"+docId+"' and a.id='"+trsid+"'";
 		
-		System.out.println(sql);
+		logger.debug(sql);
 		List<Map<String, Object>> list = ecmDocument.executeSQL(sql);
 		if(list!=null&&list.size()>0) {
 			ExcTransfer exc=new ExcTransfer();
@@ -424,7 +428,7 @@ public class DocumentService4Cnpe extends DocumentService{
 				this.updateObject(token, doc,null);
 			}
 			ExcTransfer excTransfer= getOneExcTransferByDocId(token, docId,tempTRS);
-			System.out.println(excTransfer);
+			logger.debug(JSON.toJSONString(excTransfer));
 			excTransfer.setStatus("已作废");
 			excTransferService.updateObject(excTransfer);
 			i++;

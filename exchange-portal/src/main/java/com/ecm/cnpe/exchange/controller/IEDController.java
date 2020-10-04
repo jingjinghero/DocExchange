@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,7 +41,7 @@ import com.ecm.core.service.FolderService;
 @RestController
 
 public class IEDController  extends ControllerAbstract  {
-	
+	private static final Logger logger = LoggerFactory.getLogger(IEDController.class);
 	@Autowired
 	private FolderService folderService;
 	@Autowired
@@ -108,9 +110,9 @@ public class IEDController  extends ControllerAbstract  {
 			String WBSitem2date = o1.toString();					//WBS转换转换
 			String IEDitem2date = o2.toString();					//IED的转换
 			Date WBS =df.parse(WBSitem2date);
-			//System.out.println("WBS:"+WBSitem2date);
+			//logger.debug("WBS:"+WBSitem2date);
 			Date IED =df.parse(IEDitem2date);
-			//System.out.println("IED:"+IEDitem2date);
+			//logger.debug("IED:"+IEDitem2date);
 			boolean before = WBS.before(IED);
 			if(before == true) {
 				Map<String, Object> mp3 = new HashMap<String, Object>();		
@@ -284,18 +286,20 @@ public class IEDController  extends ControllerAbstract  {
 			current = result.get(i);
 		}		
 		List<column> L1= getIEDcolumn(now,current);						//结果LIST
-		 for(int j = 0;j < L1.size();j++) {
-	    	 	
-	    	 	column tempC1 = new column();
-	    	 	tempC1 = L1.get(j);
-	    	 	//tempC1.setLabel(checkLabel(tempsave[j]));
-	    	 	//tempC1.setAttrName(tempsave[j]);
-	    	 	//System.out.println(tempsave[j]);
-	    	 	System.out.println(tempC1.attrname);
-	    	 	System.out.println(tempC1.label);
-	    	 	//columnresult.add(tempC1);
-	    	 	
-         }
+		if(logger.isDebugEnabled()) {
+			for(int j = 0;j < L1.size();j++) {
+		    	 	
+		    	 	column tempC1 = new column();
+		    	 	tempC1 = L1.get(j);
+		    	 	//tempC1.setLabel(checkLabel(tempsave[j]));
+		    	 	//tempC1.setAttrName(tempsave[j]);
+		    	 	//logger.debug(tempsave[j]);
+		    	 	logger.debug(tempC1.attrname);
+		    	 	logger.debug(tempC1.label);
+		    	 	//columnresult.add(tempC1);
+		    	 	
+	         }
+		}
 		//map.put("data", L1);
 		return L1;
 	}
@@ -331,9 +335,9 @@ public class IEDController  extends ControllerAbstract  {
 		    	 	tempC1.setLabel(checkLabel(tempsave[j]));
 		    	 	tempC1.setAttrName(tempsave[j]);
 		    	 	}
-		    	 	//System.out.println(tempsave[j]);
-		    	 	//System.out.println(tempC1.attrname);
-		    	 	//System.out.println(tempC1.label);
+		    	 	//logger.debug(tempsave[j]);
+		    	 	//logger.debug(tempC1.attrname);
+		    	 	//logger.debug(tempC1.label);
 		    	 	columnresult.add(tempC1);
 		    	 	}
 	            }
@@ -428,7 +432,7 @@ public class IEDController  extends ControllerAbstract  {
 		for(int i=0;i<ItemSize;i++) {
 		for(int j=0;j<list.get(i).getEcmFormItems().size();j++) {
 			if(column.equals(list.get(i).getEcmFormItems().get(j).getAttrName())) {
-			System.out.println(list.get(i).getEcmFormItems().get(j).getAttrName());
+			logger.debug(list.get(i).getEcmFormItems().get(j).getAttrName());
 			return list.get(i).getEcmFormItems().get(j).getLabel();}
 				
 		}

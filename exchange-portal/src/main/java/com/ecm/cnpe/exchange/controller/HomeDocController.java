@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,6 +27,7 @@ import com.ecm.portal.controller.ControllerAbstract;
 @RestController
 
 public class HomeDocController extends ControllerAbstract {
+	private static final Logger logger = LoggerFactory.getLogger(HomeDocController.class);
 	@Autowired
 	private EcmDocumentMapper ecmDocument;
 	@Autowired
@@ -136,7 +139,7 @@ public class HomeDocController extends ControllerAbstract {
 				+sqlDRK+")as delay";
 		
 		try{
-			System.out.println(sqlcomdcNum);
+			logger.debug(sqlcomdcNum);
 			List<Map<String, Object>> numList = ecmDocument.executeSQL(sqlList);
 			
 			mp.put("projectNum",numList.get(0).get("projectNum"));

@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,8 @@ import com.ecm.core.service.DocumentService;
 
 @Service
 public class LogicOption4CnpeIED {
+	
+	private static final Logger logger = LoggerFactory.getLogger(LogicOption4CnpeIED.class);
 	/**
 	 * IED接收处理
 	 * 
@@ -78,11 +82,11 @@ public class LogicOption4CnpeIED {
 				tempE1EX2 = tempM1.get("C_EX2_DATE").toString();}
 				if (!tempE1EX1.equals(MainEx1)) {
 					tempE1.addAttribute("C_ITEM1_DATE", MainEx1);
-					System.out.println(tempE1.getAttributeValue("C_ITEM1_DATE"));
+					logger.debug((String)tempE1.getAttributeValue("C_ITEM1_DATE"));
 				}
 				if (!tempE1EX2.equals(MainEx2)) {
 					tempE1.addAttribute("C_ITEM2_DATE", MainEx2);
-					System.out.println(tempE1.getAttributeValue("C_ITEM2_DATE"));
+					logger.debug((String)tempE1.getAttributeValue("C_ITEM2_DATE"));
 				}
 			}
 			documentService.updateObject(token, tempE1, null);}
