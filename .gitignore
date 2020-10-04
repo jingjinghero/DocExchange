@@ -60,3 +60,10 @@ exchange-portal/target/test-classes/com/zisecm/docexchange/AppTest.class
 zisecm-cnpe-p6ws/target/classes/META-INF/maven/com.zisyun/zisecm-cnpe-p6ws/pom.properties
 zisecm-cnpe-p6ws/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
 zisecm-cnpe-p6ws/target/zisecm-cnpe-p6ws-0.0.1-SNAPSHOT.jar
+.settings/
+.project
+exchange-portal/.classpath
+exchange-portal/.factorypath
+exchange-portal/target/
+zisecm-cnpe-p6ws/.classpath
+zisecm-jobs-syncout/target/
